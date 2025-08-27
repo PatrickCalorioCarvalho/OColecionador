@@ -1,0 +1,69 @@
+## Build Folders
+bin/
+obj/
+out/
+
+## Visual Studio / Rider / VS Code
+.vs/
+.vscode/
+.idea/
+
+## User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Rider
+.idea/
+
+## Mac / Linux
+.DS_Store
+*.swp
+*.swn
+
+## NuGet
+*.nupkg
+*.snupkg
+*.nuget.props
+*.nuget.targets
+packages/
+# Ignore package restore folders
+**/packages/*
+# NuGet v3's project.json files
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## ASP.NET Core specific
+appsettings.*.json
+launchSettings.json
+
+## Logs
+*.log
+logs/
+*.tlog
+
+## Publish outputs
+publish/
+*.publish.xml
+
+## EF Core Migrations (optional, se você quer gerar do zero no CI)
+Migrations/
+
+## User secrets
+secrets.json
+
+## Resharper
+_ReSharper*/
+
+## DotCover
+*.dotCover
+
+## StyleCop
+StyleCopReport.xml
+
+## Backup files
+*~ 
+*.bak
+*.tmp
