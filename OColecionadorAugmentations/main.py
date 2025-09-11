@@ -63,7 +63,10 @@ def tf_augmentations(image_tensor):
     augmentations["flip_lr"] = tf.image.flip_left_right(image_tensor)
     augmentations["flip_ud"] = tf.image.flip_up_down(image_tensor)
     augmentations["bright"] = tf.image.adjust_brightness(image_tensor, 0.2)
-    augmentations["contrast"] = tf.image.adjust_contrast(image_tensor, 2)
+    augmentations["contrast"] = tf.image.adjust_contrast(image_tensor, 2)  
+    augmentations["hue"] = tf.image.adjust_hue(image_tensor, 0.1)
+    augmentations["saturation"] = tf.image.adjust_saturation(image_tensor, 2)
+    augmentations["crop"] = tf.image.central_crop(image_tensor, 0.7)
     return augmentations
 
 def processar_imagem(bucket, filename, categoria, item_id):
