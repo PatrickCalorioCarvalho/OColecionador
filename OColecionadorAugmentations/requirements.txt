@@ -1,0 +1,6 @@
+pika
+psycopg2-binary
+tensorflow
+numpy
+pillow
+minio
