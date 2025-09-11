@@ -35,40 +35,6 @@ services:
     volumes:
       - minio_data:/data
 
-  processor:
-    build: ./services/processor
-    container_name: processor
-    depends_on:
-      - rabbitmq
-      - postgres
-      - minio
-    environment:
-      RABBITMQ_HOST: rabbitmq
-      POSTGRES_HOST: postgres
-      POSTGRES_DB: dataset
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      MINIO_HOST: minio
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
-    restart: always
-
-  trainer:
-    build: ./services/trainer
-    container_name: trainer
-    depends_on:
-      - postgres
-      - minio
-    environment:
-      POSTGRES_HOST: postgres
-      POSTGRES_DB: dataset
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      MINIO_HOST: minio
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
-    restart: "no"
-
 volumes:
   postgres_data:
   minio_data:
