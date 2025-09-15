@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,10 +19,12 @@ namespace OColecionadorBackEnd.Controllers
     {
         private readonly OColecionadorBackEndContext _context;
         private readonly MinioService _minio;
-        public ItemsController(OColecionadorBackEndContext context, MinioService minio)
+        private readonly RabbitService _rabbit;
+        public ItemsController(OColecionadorBackEndContext context, MinioService minio, RabbitService rabbit)
         {
             _context = context;
             _minio = minio;
+            _rabbit = rabbit;
         }
 
         // GET: api/Items
@@ -150,7 +153,6 @@ namespace OColecionadorBackEnd.Controllers
                 var fileName = Guid.NewGuid() + Path.GetExtension(arquivo.FileName);
                 using var stream = arquivo.OpenReadStream();
                 var url = await _minio.UploadFotoAsync(stream, fileName);
-
                 item.Fotos.Add(new Foto
                 {
                     Caminho = url
@@ -160,6 +162,18 @@ namespace OColecionadorBackEnd.Controllers
             // salva no banco
             _context.Item.Add(item);
             await _context.SaveChangesAsync();
+
+            foreach(Foto f in item.Fotos )
+            {
+                var message = new FotoMessage
+                {
+                    ItemId = item.Id,
+                    Categoria = _context.Categoria.Where(c => c.Id == item.CategoriaId).First().Descricao,
+                    Caminho = f.Caminho
+                };
+                _rabbit.PublishMessage<FotoMessage>("ImageAugmentations", message);
+            }
+            
 
             return Ok(new
             {
