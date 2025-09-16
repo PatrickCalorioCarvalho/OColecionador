@@ -11,7 +11,7 @@ from PIL import Image
 import random
 
 conn = psycopg2.connect(
-    host="localhost",
+    host="postgres",
     dbname="OColecionadorAugmentationsDB",
     user="OColecionadorUser",
     password="OColecionador@2025",
@@ -19,7 +19,7 @@ conn = psycopg2.connect(
 )
 
 minio_client = Minio(
-    "localhost:9000",
+    "minio:9000",
     access_key="OColecionadorUser",
     secret_key="OColecionador@2025",
     secure=False

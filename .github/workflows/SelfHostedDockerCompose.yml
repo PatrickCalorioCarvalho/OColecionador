@@ -1,0 +1,17 @@
+name: Self Hosted Docker Compose
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  docker-compose:
+    runs-on: self-hosted 
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Rodar Docker Compose
+        run: |
+          docker compose up -d --build --force-recreate
+          docker ps -a
