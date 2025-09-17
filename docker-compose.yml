@@ -15,10 +15,14 @@ services:
     image: mcr.microsoft.com/mssql-tools
     container_name: sqlinit
     depends_on:
-      - sqlserver
+      sqlserver:
+        condition: service_started
     entrypoint: >
       /bin/bash -c "
-      /opt/mssql-tools/bin/sqlcmd -S sqlserver -U sa -P OColecionador@2025 -d master -i /init.sql
+        echo '⏳ aguardando SQL Server...';
+        sleep 20;
+        /opt/mssql-tools/bin/sqlcmd -S tcp:sqlserver,1433 -U sa -P 'OColecionador@2025' -d master -i /init.sql;
+        echo '✅ script rodado';
       "
     volumes:
       - ./OColecionadorBackEnd/init.sql:/init.sql
@@ -60,14 +64,45 @@ services:
       RABBITMQ_DEFAULT_USER: OColecionadorUser
       RABBITMQ_DEFAULT_PASS: OColecionador@2025
 
+
+  ocolecionadorbackend:
+    build: ./OColecionadorBackEnd/
+    container_name: OColecionadorBackEnd
+    depends_on:
+      sqlserver-init:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_started
+      minio:
+        condition: service_started
+    environment:
+      ASPNETCORE_URLS: "http://+:5000"
+    ports:
+      - "5000:5000"
+
+  ocolecionadoraugmentations:
+    build: ./OColecionadorAugmentations/
+    container_name: OColecionadorAugmentations
+    depends_on:
+      postgres:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      minio:
+        condition: service_started
+
   nginx:
     image: nginx:latest
     container_name: nginx
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - rabbitmq
-      - minio
+      ocolecionadorbackend:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      minio:
+        condition: service_started
     ports:
       - "8080:80"
 
@@ -78,7 +113,10 @@ services:
       NGROK_AUTHTOKEN: "31flKxO9PWxmhWVjYTuhnZYzGKl_54r7zVMTMZku3GTK6ADUm"
     command: "http --url=louse-model-lioness.ngrok-free.app nginx:80"
     depends_on:
-      - nginx
+      nginx:
+        condition: service_started
+
+  
 
 volumes:
   sqlserver_data:
