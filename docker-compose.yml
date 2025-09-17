@@ -39,7 +39,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+      - ./OColecionadorAugmentations/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
 
   minio:
     image: minio/minio
@@ -79,6 +79,7 @@ services:
       ASPNETCORE_URLS: "http://+:5000"
     ports:
       - "5000:5000"
+    restart: always
 
   ocolecionadoraugmentations:
     build: ./OColecionadorAugmentations/
@@ -90,6 +91,7 @@ services:
         condition: service_started
       minio:
         condition: service_started
+    restart: always
 
   nginx:
     image: nginx:latest

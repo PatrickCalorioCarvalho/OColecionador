@@ -126,7 +126,7 @@ def callback(ch, method, properties, body):
         processar_imagem(bucket, filename, categoria, item_id)
 
 def main():
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host="localhost", port=5672, credentials=pika.PlainCredentials("OColecionadorUser","OColecionador@2025")))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host="rabbitmq", port=5672, credentials=pika.PlainCredentials("OColecionadorUser","OColecionador@2025")))
     channel = connection.channel()
 
     channel.queue_declare(queue="ImageAugmentations", durable=True)
