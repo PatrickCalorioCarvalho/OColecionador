@@ -48,8 +48,6 @@ logs/
 publish/
 *.publish.xml
 
-## EF Core Migrations (optional, se você quer gerar do zero no CI)
-Migrations/
 
 ## User secrets
 secrets.json
