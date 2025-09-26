@@ -147,3 +147,6 @@ volumes:
   portainer-data:
   metabase-data:
   
+# Usuario: OColecionadorUser
+# Senha: OColecionador@2025
+# Email: OColecionadorUser@OColecionador.com.br
