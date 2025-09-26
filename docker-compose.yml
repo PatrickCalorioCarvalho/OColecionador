@@ -140,10 +140,10 @@ services:
     volumes:
       - metabase-data:/metabase-data
 
-  
-
 volumes:
   sqlserver_data:
   postgres_data:
   minio_data:
+  portainer-data:
+  metabase-data:
   
