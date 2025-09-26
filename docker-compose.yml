@@ -117,6 +117,17 @@ services:
     depends_on:
       nginx:
         condition: service_started
+        
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./portainer-data:/data
+    ports:
+      - "9443:9443"
+      - "9002:9000"
 
   
 
