@@ -6,12 +6,15 @@ namespace OColecionadorBackEnd.Service
     public class MinioService
     {
         private readonly MinioClient _minioClient;
-
+        private readonly string? _pathExtern;
+        private readonly string? _endpoint;
         public MinioService(IConfiguration config)
         {
             var endpoint = config["Minio:Endpoint"];
             var accessKey = config["Minio:AccessKey"];
             var secretKey = config["Minio:SecretKey"];
+            _pathExtern = config["Minio:pathExtern"];
+            _endpoint = endpoint;
 
             _minioClient = (MinioClient)new MinioClient()
                 .WithEndpoint(endpoint)
@@ -48,6 +51,8 @@ namespace OColecionadorBackEnd.Service
                           .WithExpiry(expiryInSeconds);
 
             string url = await _minioClient.PresignedGetObjectAsync(args);
+            if (!string.IsNullOrEmpty(_pathExtern))
+                url = url.Replace("http://"+ _endpoint+"/", _pathExtern);
             return url;
         }
     }
