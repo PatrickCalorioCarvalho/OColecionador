@@ -12,6 +12,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Rodar Docker Compose
+        env:
+          OC_AUTH_USER: ${{ secrets.OC_AUTH_USER }}
+          OC_AUTH_PASSWORD: ${{ secrets.OC_AUTH_PASSWORD }}
+          OC_NGROCK_TOKEN: ${{ secrets.OC_NGROCK_TOKEN }}
         run: |
           docker compose up -d --build --force-recreate
           docker ps -a
