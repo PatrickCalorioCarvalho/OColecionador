@@ -3,7 +3,7 @@ services:
       image: mcr.microsoft.com/mssql/server:2022-latest
       container_name: sqlserver
       environment:
-        SA_PASSWORD: "OColecionador@2025"
+        SA_PASSWORD: "${OC_AUTH_PASSWORD}"
         ACCEPT_EULA: "Y"
         MSSQL_PID: "Express"
       ports:
@@ -21,7 +21,7 @@ services:
       /bin/bash -c "
         echo '⏳ aguardando SQL Server...';
         sleep 20;
-        /opt/mssql-tools/bin/sqlcmd -S tcp:sqlserver,1433 -U sa -P 'OColecionador@2025' -d master -i /init.sql;
+        /opt/mssql-tools/bin/sqlcmd -S tcp:sqlserver,1433 -U sa -P '${OC_AUTH_PASSWORD}' -d master -i /init.sql;
         echo '✅ script rodado';
       "
     volumes:
@@ -32,8 +32,8 @@ services:
     container_name: postgres
     restart: always
     environment:
-      POSTGRES_USER: OColecionadorUser
-      POSTGRES_PASSWORD: OColecionador@2025
+      POSTGRES_USER: ${OC_AUTH_USER}
+      POSTGRES_PASSWORD: ${OC_AUTH_PASSWORD}
       POSTGRES_DB: OColecionadorAugmentationsDB
     ports:
       - "5432:5432"
@@ -48,8 +48,8 @@ services:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: OColecionadorUser
-      MINIO_ROOT_PASSWORD: OColecionador@2025
+      MINIO_ROOT_USER: ${OC_AUTH_USER}
+      MINIO_ROOT_PASSWORD: ${OC_AUTH_PASSWORD}
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
@@ -61,8 +61,8 @@ services:
       - "5672:5672"
       - "15672:15672"
     environment:
-      RABBITMQ_DEFAULT_USER: OColecionadorUser
-      RABBITMQ_DEFAULT_PASS: OColecionador@2025
+      RABBITMQ_DEFAULT_USER: ${OC_AUTH_USER}
+      RABBITMQ_DEFAULT_PASS: ${OC_AUTH_PASSWORD}
 
 
   ocolecionadorbackend:
@@ -112,7 +112,7 @@ services:
     image: ngrok/ngrok
     container_name: ngrok
     environment:
-      NGROK_AUTHTOKEN: "31flKxO9PWxmhWVjYTuhnZYzGKl_54r7zVMTMZku3GTK6ADUm"
+      NGROK_AUTHTOKEN: ${OC_NGROCK_TOKEN}
     command: "http --url=louse-model-lioness.ngrok-free.app nginx:80"
     depends_on:
       nginx:
@@ -147,6 +147,3 @@ volumes:
   portainer-data:
   metabase-data:
   
-# Usuario: OColecionadorUser
-# Senha: OColecionador@2025
-# Email: OColecionadorUser@OColecionador.com.br
