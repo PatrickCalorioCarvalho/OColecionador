@@ -1,28 +1,68 @@
-import { useState } from "react";
-import { TextInput, Button, Image, ScrollView } from "react-native";
+import React, { useEffect, useState } from "react";
+import { TextInput, Button, Image, ScrollView, Alert } from "react-native";
+import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from "expo-image-picker";
 import { createItem } from "../models/Items";
+import { Categoria, getCategorias } from "@/models/Categorias";
 
 export default function NewItem() {
-  const [title, setTitle] = useState("");
+  const [nome, setnome] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
+  const [categoriaId, setCategoriaId] = useState<number | null>(null);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+
+  useEffect(() => {
+    getCategorias().then(setCategorias).catch(console.error);
+  }, []);
 
   const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
-    });
+    Alert.alert(
+      'Selecionar imagem',
+      'Escolha a origem da imagem',
+      [
+        {
+          text: 'Câmera',
+          onPress: async () => {
+            let result = await ImagePicker.launchCameraAsync({
+              mediaTypes: ImagePicker.MediaTypeOptions.Images,
+              quality: 1,
+            });
 
-    if (!result.canceled) {
-      setPhotos([...photos, result.assets[0].uri]);
-    }
+            if (!result.canceled) {
+              console.log(result.assets[0].uri);
+              setPhotos([...photos, result.assets[0].uri]);
+            }
+          },
+        },
+        {
+          text: 'Galeria',
+          onPress: async () => {
+            let result = await ImagePicker.launchImageLibraryAsync({
+              mediaTypes: ImagePicker.MediaTypeOptions.Images,
+              quality: 1,
+            });
+
+            if (!result.canceled) {
+              console.log(result.assets[0].uri);
+              setPhotos([...photos, result.assets[0].uri]);
+            }
+          },
+        },
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   const saveItem = async () => {
     const formData = new FormData();
-    formData.append("title", title);
+    formData.append("nome", nome);
+    formData.append("categoriaId", categoriaId?.toString() || "");
     photos.forEach((p, i) => {
-      formData.append("photos", {
+      formData.append("fotos", {
         uri: p,
         name: `photo${i}.jpg`,
         type: "image/jpeg",
@@ -30,7 +70,7 @@ export default function NewItem() {
     });
 
     await createItem(formData);
-    setTitle("");
+    setnome("");
     setPhotos([]);
   };
 
@@ -38,10 +78,19 @@ export default function NewItem() {
     <ScrollView style={{ padding: 20 }}>
       <TextInput
         placeholder="Título do item"
-        value={title}
-        onChangeText={setTitle}
+        value={nome}
+        onChangeText={setnome}
         style={{ borderBottomWidth: 1, marginBottom: 10 }}
       />
+      <Picker
+          selectedValue={categoriaId}
+          onValueChange={(itemValue) => setCategoriaId(itemValue)}
+        >
+          <Picker.Item label="Selecione uma categoria" value={null} />
+          {categorias.map((c) => (
+            <Picker.Item key={c.id} label={c.descricao} value={c.id} />
+          ))}
+      </Picker>
       <Button title="Selecionar Foto" onPress={pickImage} />
       <ScrollView horizontal>
         {photos.map((uri, idx) => (
