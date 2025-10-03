@@ -1,12 +1,27 @@
-import { useEffect, useState } from "react";
-import { View, Text, FlatList, Image, StyleSheet } from "react-native";
+import React, { useEffect, useState, useCallback } from 'react';
+import { FlatList, View, Text, Image, RefreshControl, StyleSheet } from 'react-native';
 import { getItems, Item } from "../models/Items";
 
 export default function Index() {
   const [items, setItems] = useState<Item[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchItems = async () => {
+    try {
+      const data = await getItems();
+      setItems(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
-    getItems().then(setItems).catch(console.error);
+    fetchItems();
+  }, []);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchItems().finally(() => setRefreshing(false));
   }, []);
 
   return (
@@ -20,6 +35,9 @@ export default function Index() {
           <Text style={styles.title}>{item.nome}</Text>
         </View>
       )}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
     />
   );
 }

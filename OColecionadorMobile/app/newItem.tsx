@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { TextInput, Button, Image, ScrollView, Alert } from "react-native";
+import { TextInput, Button, Image, ScrollView, Alert, View, FlatList, Text } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from "expo-image-picker";
 import { createItem } from "../models/Items";
@@ -10,6 +10,7 @@ export default function NewItem() {
   const [photos, setPhotos] = useState<string[]>([]);
   const [categoriaId, setCategoriaId] = useState<number | null>(null);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     getCategorias().then(setCategorias).catch(console.error);
@@ -58,6 +59,24 @@ export default function NewItem() {
   };
 
   const saveItem = async () => {
+    if (isSaving) return;
+    setIsSaving(true);
+    if (!nome.trim()) {
+      Alert.alert("Erro", "O nome do item é obrigatório.");
+      setIsSaving(false);
+      return;
+    }
+    if (!categoriaId) {
+      Alert.alert("Erro", "A categoria do item é obrigatória.");
+      setIsSaving(false);
+      return;
+    }
+    if (photos.length === 0) {
+      Alert.alert("Erro", "Ao menos uma foto é obrigatória.");
+      setIsSaving(false);
+      return;
+    }
+
     const formData = new FormData();
     formData.append("nome", nome);
     formData.append("categoriaId", categoriaId?.toString() || "");
@@ -72,17 +91,36 @@ export default function NewItem() {
     await createItem(formData);
     setnome("");
     setPhotos([]);
+    setCategoriaId(null);
+    setIsSaving(false);
+    Alert.alert("Sucesso", "Item criado com sucesso!");
   };
 
   return (
-    <ScrollView style={{ padding: 20 }}>
+    <ScrollView contentContainerStyle={{ padding: 20 }}>
+      <Text style={{ fontSize: 16, marginBottom: 5 }}>Nome do item</Text>
       <TextInput
-        placeholder="Título do item"
+        placeholder="Digite o nome"
         value={nome}
         onChangeText={setnome}
-        style={{ borderBottomWidth: 1, marginBottom: 10 }}
+        style={{
+          borderWidth: 1,
+          borderColor: '#ccc',
+          borderRadius: 8,
+          padding: 10,
+          marginBottom: 20,
+        }}
       />
-      <Picker
+      <Text style={{ fontSize: 16, marginBottom: 5 }}>Categoria</Text>
+      <View
+        style={{
+          borderWidth: 1,
+          borderColor: '#ccc',
+          borderRadius: 8,
+          marginBottom: 20,
+        }}
+      >
+        <Picker
           selectedValue={categoriaId}
           onValueChange={(itemValue) => setCategoriaId(itemValue)}
         >
@@ -90,18 +128,30 @@ export default function NewItem() {
           {categorias.map((c) => (
             <Picker.Item key={c.id} label={c.descricao} value={c.id} />
           ))}
-      </Picker>
-      <Button title="Selecionar Foto" onPress={pickImage} />
-      <ScrollView horizontal>
-        {photos.map((uri, idx) => (
-          <Image
-            key={idx}
-            source={{ uri }}
-            style={{ width: 100, height: 100, margin: 5 }}
+        </Picker>
+      </View>
+      <View style={{ marginBottom: 20 }}>
+        <Button title="Selecionar Foto" onPress={pickImage} />
+      </View>
+      {photos.length > 0 && (
+        <View style={{ marginBottom: 20 }}>
+          <Text style={{ fontSize: 16, marginBottom: 10 }}>Fotos selecionadas</Text>
+          <FlatList
+            data={photos}
+            horizontal
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => (
+              <Image
+                source={{ uri: item }}
+                style={{ width: 100, height: 100, marginRight: 10, borderRadius: 8 }}
+              />
+            )}
           />
-        ))}
-      </ScrollView>
-      <Button title="Salvar Item" onPress={saveItem} />
+        </View>
+      )}
+      <View style={{ marginBottom: 40 }}>
+        <Button title="Salvar Item" onPress={saveItem} />
+      </View>
     </ScrollView>
   );
 }
