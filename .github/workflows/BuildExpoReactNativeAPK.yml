@@ -43,7 +43,7 @@ jobs:
         working-directory: OColecionadorMobile
         run: |
           npx eas-cli build --platform android \
-            --profile production \
+            --profile preview \
             --local --non-interactive \
             --output app-production-release.apk
 
