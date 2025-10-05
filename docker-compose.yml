@@ -156,7 +156,7 @@ services:
       SENTRY_REDIS_DB: 2
     ports:
       - "9003:9000"
-    restart: unless-stopped
+    restart: always
 
   sentry-worker:
     image: getsentry/sentry:latest
@@ -176,7 +176,7 @@ services:
     restart: always
 
   sentry-cron:
-    image: getsentry/sentry:24.7.1
+    image: getsentry/sentry:latest
     container_name: sentry-cron
     depends_on:
       sentry:
