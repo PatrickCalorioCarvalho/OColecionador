@@ -39,7 +39,14 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./OColecionadorAugmentations/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+      - ./OColecionadorAugmentations/init_db.sql:/docker-entrypoint-initdb.d/01_init_db.sql
+      - ./init_sentry.sql:/docker-entrypoint-initdb.d/02_init_sentry.sql
+
+  redis:
+    image: redis:7
+    container_name: redis
+    volumes:
+      - redis_data:/data
 
   minio:
     image: minio/minio
@@ -140,10 +147,47 @@ services:
     volumes:
       - metabase-data:/metabase-data
 
+  sentry-init:
+    image: getsentry/sentry:latest
+    container_name: sentry-init
+    depends_on:
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+    environment:
+      SENTRY_SECRET_KEY: "f4a9c6f0a1a84f7bbf14a1f5f92e68fa"
+      SENTRY_DB_USER: sentry
+      SENTRY_DB_PASSWORD: sentry
+      SENTRY_DB_NAME: sentry
+      SENTRY_POSTGRES_HOST: postgres
+      SENTRY_REDIS_HOST: redis
+      SENTRY_REDIS_DB: 2
+    command: ["upgrade", "--noinput"]
+
+  sentry:
+    image: getsentry/sentry:latest
+    container_name: sentry
+    depends_on:
+      sentry-init:
+        condition: service_completed_successfully
+    environment:
+      SENTRY_SECRET_KEY: f4a9c6f0a1a84f7bbf14a1f5f92e68fa
+      SENTRY_DB_USER: sentry
+      SENTRY_DB_PASSWORD: sentry
+      SENTRY_DB_NAME: sentry
+      SENTRY_POSTGRES_HOST: postgres
+      SENTRY_REDIS_HOST: redis
+      SENTRY_REDIS_DB: 2
+    ports:
+      - "9003:9000"
+    restart: unless-stopped
+
 volumes:
   sqlserver_data:
   postgres_data:
   minio_data:
+  redis_data:
   portainer-data:
   metabase-data:
   

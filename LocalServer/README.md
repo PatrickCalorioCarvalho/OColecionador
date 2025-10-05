@@ -125,7 +125,7 @@ sudo ./svc.sh start
 - Substitua `SEU_TOKEN` pelo token gerado no GitHub Actions.
 - Reinicie o sistema após instalar o driver NVIDIA.
 - Certifique-se de que o usuário atual está no grupo `docker` para evitar problemas de permissão.
-
+- Criar usuario sentry docker compose run --rm sentry createuser --superuser
 ---
 
 **Referências:**
