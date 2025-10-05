@@ -158,6 +158,40 @@ services:
       - "9003:9000"
     restart: unless-stopped
 
+  sentry-worker:
+    image: getsentry/sentry:latest
+    container_name: sentry-worker
+    depends_on:
+      sentry:
+          condition: service_started
+    environment:
+      SENTRY_SECRET_KEY: f4a9c6f0a1a84f7bbf14a1f5f92e68fa
+      SENTRY_DB_USER: sentry
+      SENTRY_DB_PASSWORD: sentry
+      SENTRY_DB_NAME: sentry
+      SENTRY_POSTGRES_HOST: postgres
+      SENTRY_REDIS_HOST: redis
+      SENTRY_REDIS_DB: 2
+    command: ["run", "worker"]
+    restart: always
+
+  sentry-cron:
+    image: getsentry/sentry:24.7.1
+    container_name: sentry-cron
+    depends_on:
+      sentry:
+          condition: service_started
+    environment:
+      SENTRY_SECRET_KEY: f4a9c6f0a1a84f7bbf14a1f5f92e68fa
+      SENTRY_DB_USER: sentry
+      SENTRY_DB_PASSWORD: sentry
+      SENTRY_DB_NAME: sentry
+      SENTRY_POSTGRES_HOST: postgres
+      SENTRY_REDIS_HOST: redis
+      SENTRY_REDIS_DB: 2
+    command: ["run", "cron"]
+    restart: always
+
   nginx:
     image: nginx:latest
     container_name: nginx
