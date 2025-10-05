@@ -155,7 +155,8 @@ services:
       SENTRY_REDIS_HOST: redis
       SENTRY_REDIS_DB: 2
       SENTRY_URL_PREFIX: "https://louse-model-lioness.ngrok-free.app/sentry"
-      SENTRY_USE_SSL: "true"
+      SENTRY_USE_SSL: 1
+      SENTRY_FORCE_SCRIPT_NAME: "/sentry"
     ports:
       - "9003:9000"
     restart: unless-stopped
