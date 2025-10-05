@@ -154,10 +154,12 @@ services:
       SENTRY_POSTGRES_HOST: postgres
       SENTRY_REDIS_HOST: redis
       SENTRY_REDIS_DB: 2
+      SENTRY_URL_PREFIX: "https://louse-model-lioness.ngrok-free.app/sentry"
+      SENTRY_USE_SSL: "true"
     ports:
       - "9003:9000"
     restart: unless-stopped
-    
+
   nginx:
     image: nginx:latest
     container_name: nginx
