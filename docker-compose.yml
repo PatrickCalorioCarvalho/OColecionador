@@ -100,31 +100,6 @@ services:
         condition: service_started
     restart: always
 
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      ocolecionadorbackend:
-        condition: service_started
-      rabbitmq:
-        condition: service_started
-      minio:
-        condition: service_started
-    ports:
-      - "8080:80"
-
-  ngrok:
-    image: ngrok/ngrok
-    container_name: ngrok
-    environment:
-      NGROK_AUTHTOKEN: ${OC_NGROCK_TOKEN}
-    command: "http --url=louse-model-lioness.ngrok-free.app nginx:80"
-    depends_on:
-      nginx:
-        condition: service_started
-
   portainer:
     image: portainer/portainer-ce:latest
     container_name: portainer
@@ -182,6 +157,37 @@ services:
     ports:
       - "9003:9000"
     restart: unless-stopped
+    
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      ocolecionadorbackend:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      minio:
+        condition: service_started
+      metabase:
+        condition: service_started
+      portainer:
+        condition: service_started
+      sentry:
+        condition: service_started
+    ports:
+      - "8080:80"
+
+  ngrok:
+    image: ngrok/ngrok
+    container_name: ngrok
+    environment:
+      NGROK_AUTHTOKEN: ${OC_NGROCK_TOKEN}
+    command: "http --url=louse-model-lioness.ngrok-free.app nginx:80"
+    depends_on:
+      nginx:
+        condition: service_started
 
 volumes:
   sqlserver_data:
