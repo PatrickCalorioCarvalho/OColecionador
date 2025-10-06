@@ -91,6 +91,13 @@ services:
   ocolecionadoraugmentations:
     build: ./OColecionadorAugmentations/
     container_name: OColecionadorAugmentations
+    deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: all
+            capabilities: [gpu]
     depends_on:
       postgres:
         condition: service_started
