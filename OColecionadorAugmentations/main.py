@@ -32,8 +32,6 @@ minio_client = Minio(
     secure=False
 )
 
-division_by_zero = 1 / 0
-
 def salvar_metadata(item_id, categoria, original, variacao, split, bucket, caminho):
     print(f"💾 Salvando metadata no DB: item_id={item_id}, categoria={categoria}, original={original}, variacao={variacao}, split={split}, bucket={bucket}, caminho={caminho}")
     cur = conn.cursor()
@@ -79,13 +77,11 @@ def tf_augmentations(image_tensor):
     return augmentations
 
 def processar_imagem(bucket, filename, categoria, item_id):
-    # Baixar imagem do MinIO
     response = minio_client.get_object(bucket, filename)
     image = Image.open(io.BytesIO(response.read())).convert("RGB")
     response.close()
     response.release_conn()
 
-    # Converte para tensor
     img_array = np.array(image)
     img_tensor = tf.convert_to_tensor(img_array, dtype=tf.uint8)
 
