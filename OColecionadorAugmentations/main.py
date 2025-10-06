@@ -9,6 +9,13 @@ import tensorflow as tf
 from minio import Minio
 from PIL import Image
 import random
+import sentry_sdk
+
+sentry_sdk.init(
+    dsn="http://4a08936b06c7360828a68f7810d04423@sentry:9000/2",
+    send_default_pii=True,
+)
+
 
 conn = psycopg2.connect(
     host="postgres",
@@ -70,13 +77,11 @@ def tf_augmentations(image_tensor):
     return augmentations
 
 def processar_imagem(bucket, filename, categoria, item_id):
-    # Baixar imagem do MinIO
     response = minio_client.get_object(bucket, filename)
     image = Image.open(io.BytesIO(response.read())).convert("RGB")
     response.close()
     response.release_conn()
 
-    # Converte para tensor
     img_array = np.array(image)
     img_tensor = tf.convert_to_tensor(img_array, dtype=tf.uint8)
 

@@ -39,7 +39,14 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./OColecionadorAugmentations/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+      - ./OColecionadorAugmentations/init_db.sql:/docker-entrypoint-initdb.d/01_init_db.sql
+      - ./init_sentry.sql:/docker-entrypoint-initdb.d/02_init_sentry.sql
+
+  redis:
+    image: redis:7
+    container_name: redis
+    volumes:
+      - redis_data:/data
 
   minio:
     image: minio/minio
@@ -84,6 +91,13 @@ services:
   ocolecionadoraugmentations:
     build: ./OColecionadorAugmentations/
     container_name: OColecionadorAugmentations
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     depends_on:
       postgres:
         condition: service_started
@@ -92,31 +106,6 @@ services:
       minio:
         condition: service_started
     restart: always
-
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      ocolecionadorbackend:
-        condition: service_started
-      rabbitmq:
-        condition: service_started
-      minio:
-        condition: service_started
-    ports:
-      - "8080:80"
-
-  ngrok:
-    image: ngrok/ngrok
-    container_name: ngrok
-    environment:
-      NGROK_AUTHTOKEN: ${OC_NGROCK_TOKEN}
-    command: "http --url=louse-model-lioness.ngrok-free.app nginx:80"
-    depends_on:
-      nginx:
-        condition: service_started
 
   portainer:
     image: portainer/portainer-ce:latest
@@ -140,10 +129,112 @@ services:
     volumes:
       - metabase-data:/metabase-data
 
+  sentry-init:
+    image: getsentry/sentry:latest
+    container_name: sentry-init
+    depends_on:
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+    environment:
+      SENTRY_SECRET_KEY: "f4a9c6f0a1a84f7bbf14a1f5f92e68fa"
+      SENTRY_DB_USER: sentry
+      SENTRY_DB_PASSWORD: sentry
+      SENTRY_DB_NAME: sentry
+      SENTRY_POSTGRES_HOST: postgres
+      SENTRY_REDIS_HOST: redis
+      SENTRY_REDIS_DB: 2
+    command: ["upgrade", "--noinput"]
+
+  sentry:
+    image: getsentry/sentry:latest
+    container_name: sentry
+    depends_on:
+      sentry-init:
+        condition: service_completed_successfully
+    environment:
+      SENTRY_SECRET_KEY: f4a9c6f0a1a84f7bbf14a1f5f92e68fa
+      SENTRY_DB_USER: sentry
+      SENTRY_DB_PASSWORD: sentry
+      SENTRY_DB_NAME: sentry
+      SENTRY_POSTGRES_HOST: postgres
+      SENTRY_REDIS_HOST: redis
+      SENTRY_REDIS_DB: 2
+    ports:
+      - "9003:9000"
+    restart: always
+
+  sentry-worker:
+    image: getsentry/sentry:latest
+    container_name: sentry-worker
+    depends_on:
+      sentry:
+          condition: service_started
+    environment:
+      SENTRY_SECRET_KEY: f4a9c6f0a1a84f7bbf14a1f5f92e68fa
+      SENTRY_DB_USER: sentry
+      SENTRY_DB_PASSWORD: sentry
+      SENTRY_DB_NAME: sentry
+      SENTRY_POSTGRES_HOST: postgres
+      SENTRY_REDIS_HOST: redis
+      SENTRY_REDIS_DB: 2
+    command: ["run", "worker"]
+    restart: always
+
+  sentry-cron:
+    image: getsentry/sentry:latest
+    container_name: sentry-cron
+    depends_on:
+      sentry:
+          condition: service_started
+    environment:
+      SENTRY_SECRET_KEY: f4a9c6f0a1a84f7bbf14a1f5f92e68fa
+      SENTRY_DB_USER: sentry
+      SENTRY_DB_PASSWORD: sentry
+      SENTRY_DB_NAME: sentry
+      SENTRY_POSTGRES_HOST: postgres
+      SENTRY_REDIS_HOST: redis
+      SENTRY_REDIS_DB: 2
+    command: ["run", "cron"]
+    restart: always
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      ocolecionadorbackend:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      minio:
+        condition: service_started
+      metabase:
+        condition: service_started
+      portainer:
+        condition: service_started
+      sentry:
+        condition: service_started
+    ports:
+      - "8080:80"
+
+  ngrok:
+    image: ngrok/ngrok
+    container_name: ngrok
+    environment:
+      NGROK_AUTHTOKEN: ${OC_NGROCK_TOKEN}
+    command: "http --url=louse-model-lioness.ngrok-free.app nginx:80"
+    depends_on:
+      nginx:
+        condition: service_started
+
 volumes:
   sqlserver_data:
   postgres_data:
   minio_data:
+  redis_data:
   portainer-data:
   metabase-data:
   

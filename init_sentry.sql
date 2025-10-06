@@ -1,0 +1,2 @@
+CREATE USER sentry WITH PASSWORD 'sentry';
+CREATE DATABASE sentry OWNER sentry;
