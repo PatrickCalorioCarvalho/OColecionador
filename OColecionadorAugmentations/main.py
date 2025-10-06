@@ -9,6 +9,13 @@ import tensorflow as tf
 from minio import Minio
 from PIL import Image
 import random
+import sentry_sdk
+
+sentry_sdk.init(
+    dsn="http://4a08936b06c7360828a68f7810d04423@sentry:9000/2",
+    send_default_pii=True,
+)
+
 
 conn = psycopg2.connect(
     host="postgres",

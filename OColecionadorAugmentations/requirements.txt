@@ -4,3 +4,4 @@ tensorflow
 numpy
 pillow
 minio
+sentry-sdk
