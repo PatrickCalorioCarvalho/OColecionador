@@ -32,6 +32,8 @@ minio_client = Minio(
     secure=False
 )
 
+division_by_zero = 1 / 0
+
 def salvar_metadata(item_id, categoria, original, variacao, split, bucket, caminho):
     print(f"💾 Salvando metadata no DB: item_id={item_id}, categoria={categoria}, original={original}, variacao={variacao}, split={split}, bucket={bucket}, caminho={caminho}")
     cur = conn.cursor()
