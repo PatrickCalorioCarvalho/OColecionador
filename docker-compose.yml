@@ -161,6 +161,8 @@ services:
       SENTRY_POSTGRES_HOST: postgres
       SENTRY_REDIS_HOST: redis
       SENTRY_REDIS_DB: 2
+      SENTRY_USE_SSL: '0'
+      SENTRY_PREFIX: '/sentry'
     ports:
       - "9003:9000"
     restart: always
