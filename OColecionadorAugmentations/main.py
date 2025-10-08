@@ -16,6 +16,7 @@ sentry_sdk.init(
     send_default_pii=True,
 )
 
+division_by_zero = 1 / 0
 
 conn = psycopg2.connect(
     host="postgres",
