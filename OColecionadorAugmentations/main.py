@@ -16,7 +16,7 @@ sentry_sdk.init(
     send_default_pii=True,
 )
 
-division_by_zero = 1 / 0
+sentry_sdk.capture_message("🚨 Teste manual de erro no Sentry!")
 
 conn = psycopg2.connect(
     host="postgres",
