@@ -144,11 +144,7 @@ def callback(ch, method, properties, body):
         logging.exception("Erro no callback do RabbitMQ")
         sentry_sdk.capture_exception(e)
         
-    sentry_sdk.capture_message("🚨 Teste manual de erro no Sentry!")
-    try:
-        1 / 0
-    except Exception as e:
-        sentry_sdk.capture_exception(e)
+    sentry_sdk.capture_message("🚨 TESTE")
 
 def main():
     connection = pika.BlockingConnection(pika.ConnectionParameters(
