@@ -14,17 +14,14 @@ import logging
 import gc
 from tensorflow.keras import backend as K
 
-# Configura logging
 logging.basicConfig(level=logging.INFO)
 
-# Configura Sentry
 sentry_sdk.init(
     dsn="http://4a08936b06c7360828a68f7810d04423@sentry:9000/2",
     send_default_pii=True,
 )
 sentry_sdk.capture_message("🚨 Teste manual de erro no Sentry!")
 
-# Configura TensorFlow para alocar memória sob demanda
 gpus = tf.config.list_physical_devices('GPU')
 if gpus:
     try:
@@ -33,7 +30,6 @@ if gpus:
     except RuntimeError as e:
         logging.warning(f"Erro ao configurar GPU: {e}")
 
-# Conexão com PostgreSQL
 conn = psycopg2.connect(
     host="postgres",
     dbname="OColecionadorAugmentationsDB",
@@ -42,7 +38,6 @@ conn = psycopg2.connect(
     port=5432
 )
 
-# Conexão com MinIO
 minio_client = Minio(
     "minio:9000",
     access_key="OColecionadorUser",
