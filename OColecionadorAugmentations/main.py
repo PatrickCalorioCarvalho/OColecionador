@@ -17,7 +17,7 @@ from tensorflow.keras import backend as K
 logging.basicConfig(level=logging.INFO)
 
 sentry_sdk.init(
-    dsn="http://65c71df287c5b6eb09fc26ede39010ca:87b689574c612e8656cbc4b9c1df0347@sentry:9000/2",
+    dsn="http://65c71df287c5b6eb09fc26ede39010ca@sentry:9000/2",
     send_default_pii=True,
     debug=True,
     traces_sample_rate=1.0
