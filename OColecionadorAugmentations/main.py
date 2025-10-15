@@ -62,7 +62,7 @@ def salvar_metadata(item_id, categoria, original, variacao, split, bucket, camin
 
 def buscar_split(item_id):
     cur = conn.cursor()
-    cur.execute("SELECT dataset_split FROM imagens WHERE item_id = %s LIMIT 1", (item_id,))
+    cur.execute("SELECT dataset_split FROM imagens WHERE item_id = %s LIMIT 1", (str(item_id),))
     row = cur.fetchone()
     cur.close()
     return row[0] if row else None
