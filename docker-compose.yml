@@ -87,17 +87,16 @@ services:
     ports:
       - "5000:5000"
     restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
 
   ocolecionadoraugmentations:
     build: ./OColecionadorAugmentations/
     container_name: OColecionadorAugmentations
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+    runtime: nvidia
+    gpus:
+      - capabilities: [gpu]
     depends_on:
       postgres:
         condition: service_started
@@ -105,7 +104,12 @@ services:
         condition: service_started
       minio:
         condition: service_started
+      sentry:
+        condition: service_started
     restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
 
   portainer:
     image: portainer/portainer-ce:latest
@@ -145,6 +149,9 @@ services:
       SENTRY_POSTGRES_HOST: postgres
       SENTRY_REDIS_HOST: redis
       SENTRY_REDIS_DB: 2
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     command: ["upgrade", "--noinput"]
 
   sentry:
@@ -161,6 +168,9 @@ services:
       SENTRY_POSTGRES_HOST: postgres
       SENTRY_REDIS_HOST: redis
       SENTRY_REDIS_DB: 2
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     ports:
       - "9003:9000"
     restart: always
@@ -179,6 +189,9 @@ services:
       SENTRY_POSTGRES_HOST: postgres
       SENTRY_REDIS_HOST: redis
       SENTRY_REDIS_DB: 2
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     command: ["run", "worker"]
     restart: always
 
@@ -196,6 +209,9 @@ services:
       SENTRY_POSTGRES_HOST: postgres
       SENTRY_REDIS_HOST: redis
       SENTRY_REDIS_DB: 2
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     command: ["run", "cron"]
     restart: always
 
