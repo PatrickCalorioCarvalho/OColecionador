@@ -87,6 +87,9 @@ services:
     ports:
       - "5000:5000"
     restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
 
   ocolecionadoraugmentations:
     build: ./OColecionadorAugmentations/
