@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:2.4.1-gpu
+FROM tensorflow/tensorflow:2.6.0-gpu
 
 # Remove repositório quebrado da NVIDIA
 RUN rm -f /etc/apt/sources.list.d/cuda*.list
