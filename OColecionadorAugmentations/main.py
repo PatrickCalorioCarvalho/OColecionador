@@ -22,14 +22,6 @@ sentry_sdk.init(
     debug=True
 )
 
-sentry_sdk.capture_message("🚨 Teste manual de erro no Sentry!")
-
-try:
-    1 / 0
-except Exception as e:
-    sentry_sdk.capture_exception(e)
-
-
 gpus = tf.config.list_physical_devices('GPU')
 if gpus:
     try:
@@ -149,6 +141,12 @@ def callback(ch, method, properties, body):
             processar_imagem(bucket, filename, categoria, item_id)
     except Exception as e:
         logging.exception("Erro no callback do RabbitMQ")
+        sentry_sdk.capture_exception(e)
+        
+    sentry_sdk.capture_message("🚨 Teste manual de erro no Sentry!")
+    try:
+        1 / 0
+    except Exception as e:
         sentry_sdk.capture_exception(e)
 
 def main():
