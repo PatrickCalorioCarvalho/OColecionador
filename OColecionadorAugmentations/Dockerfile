@@ -6,12 +6,9 @@ RUN rm -f /etc/apt/sources.list.d/cuda*.list
 # Instala libpq-dev
 RUN apt-get update && apt-get install -y libpq-dev
 
-# Verifica e força o uso do Python 3.8
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 \
- && update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
-
-# Confirma versão correta
-RUN python --version && pip --version
+# Corrige o alias para usar Python 3.8 e pip3
+RUN ln -sf $(which python3) /usr/bin/python \
+ && ln -sf $(which pip3) /usr/bin/pip
 
 WORKDIR /app
 COPY requirements.txt .
