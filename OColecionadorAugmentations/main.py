@@ -19,7 +19,9 @@ logging.basicConfig(level=logging.INFO)
 sentry_sdk.init(
     dsn="http://4a08936b06c7360828a68f7810d04423@sentry:9000/2",
     send_default_pii=True,
+    debug=True
 )
+
 sentry_sdk.capture_message("🚨 Teste manual de erro no Sentry!")
 
 gpus = tf.config.list_physical_devices('GPU')
