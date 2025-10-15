@@ -24,6 +24,12 @@ sentry_sdk.init(
 
 sentry_sdk.capture_message("🚨 Teste manual de erro no Sentry!")
 
+try:
+    1 / 0
+except Exception as e:
+    sentry_sdk.capture_exception(e)
+
+
 gpus = tf.config.list_physical_devices('GPU')
 if gpus:
     try:
