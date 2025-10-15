@@ -17,9 +17,10 @@ from tensorflow.keras import backend as K
 logging.basicConfig(level=logging.INFO)
 
 sentry_sdk.init(
-    dsn="http://4a08936b06c7360828a68f7810d04423@sentry:9000/2",
+    dsn="http://4a08936b06c7360828a68f7810d04423@sentry:9000/api/2/store/",
     send_default_pii=True,
-    debug=True
+    environment="production",
+    traces_sample_rate=1.0
 )
 
 gpus = tf.config.list_physical_devices('GPU')
@@ -142,7 +143,7 @@ def callback(ch, method, properties, body):
     except Exception as e:
         logging.exception("Erro no callback do RabbitMQ")
         sentry_sdk.capture_exception(e)
-        
+
     sentry_sdk.capture_message("🚨 Teste manual de erro no Sentry!")
     try:
         1 / 0
