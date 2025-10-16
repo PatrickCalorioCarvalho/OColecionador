@@ -111,6 +111,22 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
+  ocolecionadortraining:
+    build: ./OColecionadorTraining/
+    container_name: OColecionadorTraining
+    runtime: nvidia
+    gpus:
+      - capabilities: [gpu]
+    depends_on:
+      minio:
+        condition: service_started
+      sentry:
+        condition: service_started
+    restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+
   portainer:
     image: portainer/portainer-ce:latest
     container_name: portainer
