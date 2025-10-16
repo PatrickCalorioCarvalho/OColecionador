@@ -122,7 +122,6 @@ services:
         condition: service_started
       sentry:
         condition: service_started
-    restart: always
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
