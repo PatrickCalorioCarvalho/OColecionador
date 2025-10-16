@@ -65,7 +65,7 @@ def buscar_split(item_id):
 
 def escolher_split():
     r = random.random()
-    return "train" if r < 0.7 else "val" if r < 0.9 else "test"
+    return "training" if r < 0.7 else "validation" if r < 0.9 else "test"
 
 def tf_augmentations(image_tensor):
     augmentations = {
