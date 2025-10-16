@@ -11,7 +11,7 @@ BUCKET_AUG = "ocolecionadorbucket-processed"
 MODEL_OUT = "models/classifier.keras"
 
 minio_client = Minio(
-    "192.168.18.217:9000",
+    "minio:9000",
     access_key="OColecionadorUser",
     secret_key="OColecionador@2025",
     secure=False
