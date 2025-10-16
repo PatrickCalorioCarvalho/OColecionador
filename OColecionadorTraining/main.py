@@ -19,6 +19,7 @@ minio_client = Minio(
 
 def download_augmentations(tmpdir):
     for obj in minio_client.list_objects(BUCKET_AUG, recursive=True):
+        print('Downloading', obj.object_name)
         outpath = os.path.join(tmpdir, obj.object_name)
         os.makedirs(os.path.dirname(outpath), exist_ok=True)
         minio_client.fget_object(BUCKET_AUG, obj.object_name, outpath)
@@ -28,6 +29,10 @@ def train():
     tmp = tempfile.mkdtemp()
     try:
         download_augmentations(tmp)
+        print('Starting training...')
+        print('Using TensorFlow version', tf.__version__)
+        print('Num GPUs Available:', len(tf.config.list_physical_devices('GPU')))
+        print("FIles in tmp:", sum(len(files) for _, _, files in os.walk(tmp)))
         datagen = ImageDataGenerator(rescale=1./255, validation_split=0.2)
         train_gen = datagen.flow_from_directory(tmp, target_size=(224,224), batch_size=16, subset='train', class_mode='categorical')
         val_gen = datagen.flow_from_directory(tmp, target_size=(224,224), batch_size=16, subset='val', class_mode='categorical')
