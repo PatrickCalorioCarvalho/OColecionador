@@ -122,7 +122,10 @@ def train():
         model_path = os.path.join(MODEL_VOLUME, model_filename)
         os.makedirs(MODEL_VOLUME, exist_ok=True)
         model.save(model_path)
-
+        print(f"✅ Modelo salvo localmente: {model_path}")
+        
+        if not minio_client.bucket_exists(BUCKET_MODELS):
+            minio_client.make_bucket(BUCKET_MODELS)
         minio_client.fput_object(BUCKET_MODELS, model_filename, model_path)
         print(f"✅ Modelo salvo no MinIO: {BUCKET_MODELS}/{model_filename}")
 
