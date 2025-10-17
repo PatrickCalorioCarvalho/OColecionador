@@ -5,9 +5,13 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras import layers, models
 import tensorflow as tf
 import numpy as np
+from datetime import datetime
+import psycopg2
+from collections import Counter
 
 BUCKET_AUG = "ocolecionadorbucket-processed"
-MODEL_OUT = "models/classifier.keras"
+BUCKET_MODELS = "ocolecionadorbucket-models"
+MODEL_VOLUME = "/mnt/modelos"
 
 minio_client = Minio(
     "minio:9000",
@@ -18,22 +22,62 @@ minio_client = Minio(
 
 def download_augmentations(tmpdir):
     for obj in minio_client.list_objects(BUCKET_AUG, recursive=True):
-        print('Downloading', obj.object_name)
         outpath = os.path.join(tmpdir, obj.object_name)
         os.makedirs(os.path.dirname(outpath), exist_ok=True)
         minio_client.fget_object(BUCKET_AUG, obj.object_name, outpath)
-    print('Downloaded augmentations to', tmpdir)
+    print('✅ Imagens baixadas para', tmpdir)
 
+def count_classes_by_subset(generator):
+    counts = Counter(generator.classes)
+    index_to_class = {v: k for k, v in generator.class_indices.items()}
+    return {index_to_class[i]: count for i, count in counts.items()}
+
+def save_metrics_to_db(train_count, val_count, test_count, acc, loss, model_path):
+    conn = psycopg2.connect(
+        host="postgres",
+        database="OColecionadorAugmentationsDB",
+        user="OColecionadorUser",
+        password="OColecionador@2025"
+    )
+    cur = conn.cursor()
+    cur.execute("""
+        INSERT INTO modelo_resultado (
+            data_geracao, imagens_treino, imagens_validacao, imagens_teste,
+            acuracia_teste, perda_teste, caminho_modelo
+        ) VALUES (NOW(), %s, %s, %s, %s, %s, %s) RETURNING id
+    """, (train_count, val_count, test_count, acc, loss, model_path))
+    model_id = cur.fetchone()[0]
+    conn.commit()
+    cur.close()
+    conn.close()
+    print("✅ Métricas salvas no PostgreSQL")
+    return model_id
+
+# Função para salvar distribuição por categoria
+def save_distribution_to_db(model_id, subset_name, class_counts):
+    conn = psycopg2.connect(
+        host="postgres",
+        database="OColecionadorAugmentationsDB",
+        user="OColecionadorUser",
+        password="OColecionador@2025"
+    )
+    cur = conn.cursor()
+    for categoria, quantidade in class_counts.items():
+        cur.execute("""
+            INSERT INTO modelo_distribuicao (modelo_id, conjunto, categoria, quantidade)
+            VALUES (%s, %s, %s, %s)
+        """, (model_id, subset_name, categoria, quantidade))
+    conn.commit()
+    cur.close()
+    conn.close()
+    print(f"✅ Distribuição '{subset_name}' salva no banco")
+
+# Função principal
 def train():
     tmp = tempfile.mkdtemp()
     try:
         download_augmentations(tmp)
-        print('Starting training...')
-        print('Using TensorFlow version', tf.__version__)
-        print('Num GPUs Available:', len(tf.config.list_physical_devices('GPU')))
-        print("Files in tmp:", sum(len(files) for _, _, files in os.walk(tmp)))
 
-        # Geradores separados para treino, validação e teste
         train_gen = ImageDataGenerator(rescale=1./255).flow_from_directory(
             os.path.join(tmp, "training"),
             target_size=(224, 224),
@@ -56,9 +100,6 @@ def train():
             shuffle=False
         )
 
-        print('Found', train_gen.num_classes, 'classes:', train_gen.class_indices)
-
-        # Modelo baseado em MobileNetV2
         base = tf.keras.applications.MobileNetV2(weights='imagenet', include_top=False, input_shape=(224,224,3))
         base.trainable = False
 
@@ -73,16 +114,34 @@ def train():
         model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
         model.fit(train_gen, validation_data=val_gen, epochs=3)
 
-        # Avaliação no conjunto de teste
         loss, acc = model.evaluate(test_gen)
         print(f"📊 Test accuracy: {acc:.4f} | Test loss: {loss:.4f}")
 
-        os.makedirs(os.path.dirname(MODEL_OUT), exist_ok=True)
-        model.save(MODEL_OUT)
-        print('Saved model to', MODEL_OUT)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        model_filename = f"classifier_{timestamp}.keras"
+        model_path = os.path.join(MODEL_VOLUME, model_filename)
+        os.makedirs(MODEL_VOLUME, exist_ok=True)
+        model.save(model_path)
+
+        minio_client.fput_object(BUCKET_MODELS, model_filename, model_path)
+        print(f"✅ Modelo salvo no MinIO: {BUCKET_MODELS}/{model_filename}")
+
+        model_id = save_metrics_to_db(
+            train_gen.samples,
+            val_gen.samples,
+            test_gen.samples,
+            acc,
+            loss,
+            f"{BUCKET_MODELS}/{model_filename}"
+        )
+
+        save_distribution_to_db(model_id, "training", count_classes_by_subset(train_gen))
+        save_distribution_to_db(model_id, "validation", count_classes_by_subset(val_gen))
+        save_distribution_to_db(model_id, "test", count_classes_by_subset(test_gen))
 
     finally:
         shutil.rmtree(tmp)
+        print("🧹 Diretório temporário removido")
 
 if __name__ == '__main__':
     train()

@@ -118,6 +118,8 @@ services:
     gpus:
       - capabilities: [gpu]
     depends_on:
+      postgres:
+        condition: service_started
       minio:
         condition: service_started
       sentry:
@@ -125,6 +127,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
+      - model-data:/mnt/modelos
 
   portainer:
     image: portainer/portainer-ce:latest
@@ -268,4 +271,5 @@ volumes:
   redis_data:
   portainer-data:
   metabase-data:
+  model-data:
   
