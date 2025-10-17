@@ -12,6 +12,7 @@ import random
 import sentry_sdk
 import logging
 import gc
+import multiprocessing
 from tensorflow.keras import backend as K
 
 logging.basicConfig(level=logging.INFO)
@@ -129,6 +130,14 @@ def processar_imagem(bucket, filename, categoria, item_id):
         del img_tensor, img_array
         gc.collect()
 
+
+def worker(bucket, filename, categoria, item_id):
+    try:
+        processar_imagem(bucket, filename, categoria, item_id)
+    except Exception as e:
+        logging.exception("Erro no subprocessamento da imagem")
+        sentry_sdk.capture_exception(e)
+
 def callback(ch, method, properties, body):
     try:
         msg = json.loads(body)
@@ -138,14 +147,16 @@ def callback(ch, method, properties, body):
 
         if caminho and categoria and item_id:
             bucket, filename = caminho.split("//", 1)
-            logging.info(f"🔍 Processando {filename} do bucket {bucket}")
-            processar_imagem(bucket, filename, categoria, item_id)
+            logging.info(f"🔍 Processando {filename} do bucket {bucket} em subprocesso")
+
+            p = multiprocessing.Process(target=worker, args=(bucket, filename, categoria, item_id))
+            p.start()
+            p.join()
     except Exception as e:
         logging.exception("Erro no callback do RabbitMQ")
         sentry_sdk.capture_exception(e)
-        
-    sentry_sdk.capture_message("🚨 TESTE")
 
+    sentry_sdk.capture_message("🚨 TESTE")
 def main():
     connection = pika.BlockingConnection(pika.ConnectionParameters(
         host="rabbitmq",
