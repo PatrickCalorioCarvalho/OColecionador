@@ -9,7 +9,7 @@ import tensorflow as tf
 from minio import Minio
 from PIL import Image
 import random
-import sentry_sdk
+#import sentry_sdk
 import logging
 import gc
 import multiprocessing
@@ -17,12 +17,12 @@ from tensorflow.keras import backend as K
 
 logging.basicConfig(level=logging.INFO)
 
-sentry_sdk.init(
-    dsn="http://a0a76341b1b32f0dd94a320edcd8d306@sentry:9000/2",
-    send_default_pii=True,
-    debug=True,
-    traces_sample_rate=1.0
-)
+#sentry_sdk.init(
+#    dsn="http://a0a76341b1b32f0dd94a320edcd8d306@sentry:9000/2",
+#    send_default_pii=True,
+#    debug=True,
+#    traces_sample_rate=1.0
+#)
 
 gpus = tf.config.list_physical_devices('GPU')
 if gpus:
@@ -124,7 +124,7 @@ def processar_imagem(bucket, filename, categoria, item_id):
         logging.info(f"✅ {filename} (item_id={item_id}) salvo em {split}/ com variações")
     except Exception as e:
         logging.exception("Erro ao processar imagem")
-        sentry_sdk.capture_exception(e)
+        #sentry_sdk.capture_exception(e)
     finally:
         K.clear_session()
         del img_tensor, img_array
@@ -136,7 +136,7 @@ def worker(bucket, filename, categoria, item_id):
         processar_imagem(bucket, filename, categoria, item_id)
     except Exception as e:
         logging.exception("Erro no subprocessamento da imagem")
-        sentry_sdk.capture_exception(e)
+        #sentry_sdk.capture_exception(e)
 
 def callback(ch, method, properties, body):
     try:
@@ -154,7 +154,7 @@ def callback(ch, method, properties, body):
             p.join()
     except Exception as e:
         logging.exception("Erro no callback do RabbitMQ")
-        sentry_sdk.capture_exception(e)
+        #sentry_sdk.capture_exception(e)
 def main():
     connection = pika.BlockingConnection(pika.ConnectionParameters(
         host="rabbitmq",
