@@ -1,8 +1,10 @@
 #!/bin/bash
 set -e
 
-echo "📦 Verificando se o banco está disponível..."
-until pg_isready -d "${DATABASE_URL}" > /dev/null 2>&1; do
+DB_HOST=$(echo "$DATABASE_URL" | sed -E 's/^postgres:\/\/[^@]+@([^:]+):.*/\1/')
+DB_USER=$(echo "$DATABASE_URL" | sed -E 's/^postgres:\/\/([^:]+):.*/\1/')
+echo "📦 Verificando se o banco está disponível em $DB_HOST..."
+until pg_isready -h "$DB_HOST" -U "$DB_USER" > /dev/null 2>&1; do
   sleep 2
   echo "⏳ Aguardando PostgreSQL..."
 done
