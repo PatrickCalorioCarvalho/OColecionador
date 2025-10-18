@@ -10,7 +10,6 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 if not User.objects.filter(email="${GLITCHTIP_ADMIN_EMAIL}").exists():
     User.objects.create_superuser(
-        username="${GLITCHTIP_ADMIN_USERNAME}",
         email="${GLITCHTIP_ADMIN_EMAIL}",
         password="${GLITCHTIP_ADMIN_PASSWORD}"
     )
