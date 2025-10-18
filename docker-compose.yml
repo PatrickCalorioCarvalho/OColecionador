@@ -164,8 +164,6 @@ services:
       GLITCHTIP_ADMIN_USERNAME: ${OC_AUTH_USER}
     volumes:
       - ./LocalServer/entrypoint_glitchti.sh:/entrypoint.sh
-      - glitchtip-media:/app/media
-      - glitchtip-static:/app/static
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
     restart: unless-stopped
 
