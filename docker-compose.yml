@@ -147,24 +147,24 @@ services:
     volumes:
       - metabase-data:/metabase-data
 
-    glitchtip:
-      image: glitchtip/glitchtip:latest
-      container_name: glitchtip
-      ports:
-        - "8000:8000"
-      environment:
-        DATABASE_URL: postgres://glitchtip:glitchtip@postgres:5432/glitchtip
-        SECRET_KEY: "qf^p@8r!z#y3b$1uws(5!gj_2i7r9m^c0l*vxd$4h%n+t@oe6z"
-        ALLOWED_HOSTS: "*"
-        GLITCHTIP_ADMIN_EMAIL: ${OC_AUTH_EMAIL}
-        GLITCHTIP_ADMIN_PASSWORD: ${OC_AUTH_PASSWORD}
-        GLITCHTIP_ADMIN_USERNAME: ${OC_AUTH_USER}
-      volumes:
-        - ./LocalServer/entrypoint_glitchti.sh:/entrypoint.sh
-        - glitchtip-media:/app/media
-        - glitchtip-static:/app/static
-      entrypoint: ["/bin/bash", "/entrypoint.sh"]
-      restart: unless-stopped
+  glitchtip:
+    image: glitchtip/glitchtip:latest
+    container_name: glitchtip
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgres://glitchtip:glitchtip@postgres:5432/glitchtip
+      SECRET_KEY: "qf^p@8r!z#y3b$1uws(5!gj_2i7r9m^c0l*vxd$4h%n+t@oe6z"
+      ALLOWED_HOSTS: "*"
+      GLITCHTIP_ADMIN_EMAIL: ${OC_AUTH_EMAIL}
+      GLITCHTIP_ADMIN_PASSWORD: ${OC_AUTH_PASSWORD}
+      GLITCHTIP_ADMIN_USERNAME: ${OC_AUTH_USER}
+    volumes:
+      - ./LocalServer/entrypoint_glitchti.sh:/entrypoint.sh
+      - glitchtip-media:/app/media
+      - glitchtip-static:/app/static
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+    restart: unless-stopped
 
   volumes:
     glitchtip-media:
