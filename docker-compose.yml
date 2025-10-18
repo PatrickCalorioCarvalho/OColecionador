@@ -167,6 +167,20 @@ services:
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
     restart: unless-stopped
 
+    
+  glitchtip-worker:
+    image: glitchtip/glitchtip:latest
+    container_name: glitchtip-worker
+    depends_on:
+      postgres:
+        condition: service_started
+      glitchtip:
+        condition: service_started
+    environment:
+      DATABASE_URL: postgres://glitchtip:glitchtip@postgres:5432/glitchtip
+      DEBUG: "true"
+    command: celery -A glitchtip worker -l info
+
 
   nginx:
     image: nginx:latest
