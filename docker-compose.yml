@@ -164,6 +164,7 @@ services:
       GLITCHTIP_ADMIN_USERNAME: ${OC_AUTH_USER}
     volumes:
       - ./LocalServer/entrypoint_glitchti.sh:/entrypoint.sh
+      - uploads:/code/uploads
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
     restart: unless-stopped
 
@@ -178,9 +179,10 @@ services:
         condition: service_started
     environment:
       DATABASE_URL: postgres://glitchtip:glitchtip@postgres:5432/glitchtip
-      DEBUG: "true"
-    command: celery -A glitchtip worker -l info
-
+      SECRET_KEY: "qf^p@8r!z#y3b$1uws(5!gj_2i7r9m^c0l*vxd$4h%n+t@oe6z"
+    command: ./bin/run-celery-with-beat.sh
+    volumes:
+      - uploads:/code/uploads
 
   nginx:
     image: nginx:latest
@@ -219,4 +221,5 @@ volumes:
   portainer-data:
   metabase-data:
   model-data:
+  uploads:
   
