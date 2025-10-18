@@ -9,18 +9,24 @@ import tensorflow as tf
 from minio import Minio
 from PIL import Image
 import random
-import logging
 import gc
 import multiprocessing
 from tensorflow.keras import backend as K
-import sentry_sdk
 
+import logging
+import sentry_sdk
+from sentry_sdk.integrations.logging import LoggingIntegration
+
+sentry_logging = LoggingIntegration(
+    level=logging.INFO,       
+    event_level=logging.ERROR
+)
 
 sentry_sdk.init(
     "http://cf5e978c13b14076b919454318fbc7d7@glitchtip:8000/1",
+    integrations=[sentry_logging],
     traces_sample_rate=1.0
 )
-
 
 logging.basicConfig(level=logging.INFO)
 
@@ -174,9 +180,10 @@ if __name__ == "__main__":
     try:
         division_by_zero = 1 / 0
     except Exception as e:
-        print(e)
+        logging.info("Capturando exceção e enviando para o GlitchTip")
+        logging.error(str(e))
         sentry_sdk.capture_exception(e)
 
     sentry_sdk.flush(timeout=5)
-    print("Evento enviado para o GlitchTip")
+    logging.info("Evento enviado para o GlitchTip")
     main()
