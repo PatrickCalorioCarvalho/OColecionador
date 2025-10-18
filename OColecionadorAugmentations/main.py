@@ -21,13 +21,6 @@ sentry_sdk.init(
     traces_sample_rate=1.0
 )
 
-try:
-    division_by_zero = 1 / 0
-except Exception as e:
-    sentry_sdk.capture_exception(e)
-
-sentry_sdk.flush(timeout=5)
-print("Evento enviado para o GlitchTip")
 
 logging.basicConfig(level=logging.INFO)
 
@@ -178,4 +171,12 @@ def main():
     channel.start_consuming()
 
 if __name__ == "__main__":
+    try:
+        division_by_zero = 1 / 0
+    except Exception as e:
+        print(e)
+        sentry_sdk.capture_exception(e)
+
+    sentry_sdk.flush(timeout=5)
+    print("Evento enviado para o GlitchTip")
     main()
