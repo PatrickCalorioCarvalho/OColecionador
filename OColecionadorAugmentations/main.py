@@ -130,7 +130,6 @@ def processar_imagem(bucket, filename, categoria, item_id):
         logging.info(f"✅ {filename} (item_id={item_id}) salvo em {split}/ com variações")
     except Exception as e:
         logging.exception("Erro ao processar imagem")
-        #sentry_sdk.capture_exception(e)
     finally:
         K.clear_session()
         del img_tensor, img_array
@@ -142,7 +141,6 @@ def worker(bucket, filename, categoria, item_id):
         processar_imagem(bucket, filename, categoria, item_id)
     except Exception as e:
         logging.exception("Erro no subprocessamento da imagem")
-        #sentry_sdk.capture_exception(e)
 
 def callback(ch, method, properties, body):
     try:
@@ -160,7 +158,6 @@ def callback(ch, method, properties, body):
             p.join()
     except Exception as e:
         logging.exception("Erro no callback do RabbitMQ")
-        #sentry_sdk.capture_exception(e)
 def main():
     connection = pika.BlockingConnection(pika.ConnectionParameters(
         host="rabbitmq",
@@ -177,13 +174,4 @@ def main():
     channel.start_consuming()
 
 if __name__ == "__main__":
-    try:
-        division_by_zero = 1 / 0
-    except Exception as e:
-        logging.info("Capturando exceção e enviando para o GlitchTip")
-        logging.error(str(e))
-        sentry_sdk.capture_exception(e)
-
-    sentry_sdk.flush(timeout=5)
-    logging.info("Evento enviado para o GlitchTip")
     main()
