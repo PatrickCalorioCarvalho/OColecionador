@@ -205,6 +205,4 @@ volumes:
   portainer-data:
   metabase-data:
   model-data:
-  glitchtip-media:
-  glitchtip-static:
   
