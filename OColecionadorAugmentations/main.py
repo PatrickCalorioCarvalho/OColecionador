@@ -9,13 +9,23 @@ import tensorflow as tf
 from minio import Minio
 from PIL import Image
 import random
-import sentry_sdk
 import logging
 import gc
 import multiprocessing
 from tensorflow.keras import backend as K
+import sentry_sdk
+import sys
 
-sentry_sdk.init("http://cf5e978c13b14076b919454318fbc7d7@glitchtip:8000/1")
+def handle_exception(exc_type, exc_value, exc_traceback):
+    sentry_sdk.capture_exception(exc_value)
+    sys.__excepthook__(exc_type, exc_value, exc_traceback)
+
+sentry_sdk.init(
+    "http://cf5e978c13b14076b919454318fbc7d7@glitchtip:8000/1",
+    traces_sample_rate=1.0
+)
+
+sys.excepthook = handle_exception
 
 division_by_zero = 1 / 0
 
