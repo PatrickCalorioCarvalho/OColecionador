@@ -166,10 +166,6 @@ services:
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
     restart: unless-stopped
 
-  volumes:
-    glitchtip-media:
-    glitchtip-static:
-
 
   nginx:
     image: nginx:latest
