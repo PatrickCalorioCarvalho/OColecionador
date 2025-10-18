@@ -152,6 +152,9 @@ services:
     container_name: glitchtip
     ports:
       - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_started
     environment:
       DATABASE_URL: postgres://glitchtip:glitchtip@postgres:5432/glitchtip
       SECRET_KEY: "qf^p@8r!z#y3b$1uws(5!gj_2i7r9m^c0l*vxd$4h%n+t@oe6z"
