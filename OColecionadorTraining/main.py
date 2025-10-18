@@ -9,6 +9,24 @@ from datetime import datetime
 import psycopg2
 from collections import Counter
 
+import logging
+import sentry_sdk
+from sentry_sdk.integrations.logging import LoggingIntegration
+
+sentry_logging = LoggingIntegration(
+    level=logging.INFO,       
+    event_level=logging.ERROR
+)
+
+sentry_sdk.init(
+    "http://44f733a0f9384fb9a9272cb83fe5f358@glitchtip:8000/3",
+    integrations=[sentry_logging],
+    traces_sample_rate=1.0
+)
+
+logging.basicConfig(level=logging.INFO)
+
+
 BUCKET_AUG = "ocolecionadorbucket-processed"
 BUCKET_MODELS = "ocolecionadorbucket-models"
 MODEL_VOLUME = "/mnt/modelos"
@@ -25,7 +43,7 @@ def download_augmentations(tmpdir):
         outpath = os.path.join(tmpdir, obj.object_name)
         os.makedirs(os.path.dirname(outpath), exist_ok=True)
         minio_client.fget_object(BUCKET_AUG, obj.object_name, outpath)
-    print('✅ Imagens baixadas para', tmpdir)
+    logging.info('✅ Imagens baixadas para', tmpdir)
 
 def count_classes_by_subset(generator):
     counts = Counter(generator.classes)
@@ -50,7 +68,7 @@ def save_metrics_to_db(train_count, val_count, test_count, acc, loss, model_path
     conn.commit()
     cur.close()
     conn.close()
-    print("✅ Métricas salvas no PostgreSQL")
+    logging.info("✅ Métricas salvas no PostgreSQL")
     return model_id
 
 # Função para salvar distribuição por categoria
@@ -70,7 +88,7 @@ def save_distribution_to_db(model_id, subset_name, class_counts):
     conn.commit()
     cur.close()
     conn.close()
-    print(f"✅ Distribuição '{subset_name}' salva no banco")
+    logging.info(f"✅ Distribuição '{subset_name}' salva no banco")
 
 # Função principal
 def train():
@@ -117,19 +135,19 @@ def train():
         loss, acc = model.evaluate(test_gen)
         acc = float(f"{acc:.4f}")
         loss = float(f"{loss:.4f}")
-        print(f"📊 Test accuracy: {str(acc)} | Test loss: {str(loss)}")
+        logging.info(f"📊 Test accuracy: {str(acc)} | Test loss: {str(loss)}")
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         model_filename = f"classifier_{timestamp}.keras"
         model_path = os.path.join(MODEL_VOLUME, model_filename)
         os.makedirs(MODEL_VOLUME, exist_ok=True)
         model.save(model_path)
-        print(f"✅ Modelo salvo localmente: {model_path}")
+        logging.info(f"✅ Modelo salvo localmente: {model_path}")
 
         if not minio_client.bucket_exists(BUCKET_MODELS):
             minio_client.make_bucket(BUCKET_MODELS)
         minio_client.fput_object(BUCKET_MODELS, model_filename, model_path)
-        print(f"✅ Modelo salvo no MinIO: {BUCKET_MODELS}/{model_filename}")
+        logging.info(f"✅ Modelo salvo no MinIO: {BUCKET_MODELS}/{model_filename}")
 
         model_id = save_metrics_to_db(
             train_gen.samples,
@@ -143,10 +161,10 @@ def train():
         save_distribution_to_db(model_id, "training", count_classes_by_subset(train_gen))
         save_distribution_to_db(model_id, "validation", count_classes_by_subset(val_gen))
         save_distribution_to_db(model_id, "test", count_classes_by_subset(test_gen))
-
+        
     finally:
         shutil.rmtree(tmp)
-        print("🧹 Diretório temporário removido")
+        logging.info("🧹 Diretório temporário removido")
 
 if __name__ == '__main__':
     train()
