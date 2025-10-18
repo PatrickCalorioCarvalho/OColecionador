@@ -4,6 +4,11 @@ set -e
 echo "🏗️ Rodando migrações..."
 python manage.py migrate --noinput
 
+echo "🔧 Corrigindo permissões de /code/static..."
+chmod -R 777 /code/static || true
+mkdir -p /app/static /app/media
+chmod -R 777 /app/static /app/media
+
 echo "🧩 Coletando arquivos estáticos..."
 python manage.py collectstatic --noinput
 
