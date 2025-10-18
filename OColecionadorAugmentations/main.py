@@ -23,7 +23,7 @@ sentry_logging = LoggingIntegration(
 )
 
 sentry_sdk.init(
-    "http://cf5e978c13b14076b919454318fbc7d7@glitchtip:8000/1",
+    "http://b908dfbae5f8493cb8a708de0094f3f2@glitchtip:8000/2",
     integrations=[sentry_logging],
     traces_sample_rate=1.0
 )
