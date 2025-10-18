@@ -14,6 +14,7 @@ jobs:
       - name: Rodar Docker Compose
         env:
           OC_AUTH_USER: ${{ secrets.OC_AUTH_USER }}
+          OC_AUTH_EMAIL: ${{ secrets.OC_AUTH_EMAIL }}
           OC_AUTH_PASSWORD: ${{ secrets.OC_AUTH_PASSWORD }}
           OC_NGROCK_TOKEN: ${{ secrets.OC_NGROCK_TOKEN }}
         run: |

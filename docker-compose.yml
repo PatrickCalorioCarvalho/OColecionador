@@ -40,7 +40,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./OColecionadorAugmentations/init_db.sql:/docker-entrypoint-initdb.d/01_init_db.sql
-      - ./init_sentry.sql:/docker-entrypoint-initdb.d/02_init_sentry.sql
+      - ./LocalServer/init_glitchtip.sql:/docker-entrypoint-initdb.d/02_init_glitchtip.sql
 
   redis:
     image: redis:7
@@ -104,12 +104,26 @@ services:
         condition: service_started
       minio:
         condition: service_started
-      sentry:
-        condition: service_started
     restart: always
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
+
+  ocolecionadortraining:
+    build: ./OColecionadorTraining/
+    container_name: OColecionadorTraining
+    runtime: nvidia
+    gpus:
+      - capabilities: [gpu]
+    depends_on:
+      postgres:
+        condition: service_started
+      minio:
+        condition: service_started
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - model-data:/mnt/modelos
 
   portainer:
     image: portainer/portainer-ce:latest
@@ -133,93 +147,48 @@ services:
     volumes:
       - metabase-data:/metabase-data
 
-  sentry-init:
-    image: getsentry/sentry:latest
-    container_name: sentry-init
+  glitchtip:
+    image: glitchtip/glitchtip:latest
+    container_name: glitchtip
+    ports:
+      - "8000:8000"
     depends_on:
       postgres:
         condition: service_started
-      redis:
+    environment:
+      DATABASE_URL: postgres://glitchtip:glitchtip@postgres:5432/glitchtip
+      SECRET_KEY: "qf^p@8r!z#y3b$1uws(5!gj_2i7r9m^c0l*vxd$4h%n+t@oe6z"
+      ALLOWED_HOSTS: "*"
+      GLITCHTIP_ADMIN_EMAIL: ${OC_AUTH_EMAIL}
+      GLITCHTIP_ADMIN_PASSWORD: ${OC_AUTH_PASSWORD}
+      GLITCHTIP_ADMIN_USERNAME: ${OC_AUTH_USER}
+    volumes:
+      - ./LocalServer/entrypoint_glitchti.sh:/entrypoint.sh
+      - uploads:/code/uploads
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+    restart: unless-stopped
+
+    
+  glitchtip-worker:
+    image: glitchtip/glitchtip:latest
+    container_name: glitchtip-worker
+    depends_on:
+      postgres:
+        condition: service_started
+      glitchtip:
         condition: service_started
     environment:
-      SENTRY_SECRET_KEY: "f4a9c6f0a1a84f7bbf14a1f5f92e68fa"
-      SENTRY_DB_USER: sentry
-      SENTRY_DB_PASSWORD: sentry
-      SENTRY_DB_NAME: sentry
-      SENTRY_POSTGRES_HOST: postgres
-      SENTRY_REDIS_HOST: redis
-      SENTRY_REDIS_DB: 2
+      DATABASE_URL: postgres://glitchtip:glitchtip@postgres:5432/glitchtip
+      SECRET_KEY: "qf^p@8r!z#y3b$1uws(5!gj_2i7r9m^c0l*vxd$4h%n+t@oe6z"
+    command: ./bin/run-celery-with-beat.sh
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-    command: ["upgrade", "--noinput"]
-
-  sentry:
-    image: getsentry/sentry:latest
-    container_name: sentry
-    depends_on:
-      sentry-init:
-        condition: service_completed_successfully
-    environment:
-      SENTRY_SECRET_KEY: f4a9c6f0a1a84f7bbf14a1f5f92e68fa
-      SENTRY_DB_USER: sentry
-      SENTRY_DB_PASSWORD: sentry
-      SENTRY_DB_NAME: sentry
-      SENTRY_POSTGRES_HOST: postgres
-      SENTRY_REDIS_HOST: redis
-      SENTRY_REDIS_DB: 2
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-    ports:
-      - "9003:9000"
-    restart: always
-
-  sentry-worker:
-    image: getsentry/sentry:latest
-    container_name: sentry-worker
-    depends_on:
-      sentry:
-          condition: service_started
-    environment:
-      SENTRY_SECRET_KEY: f4a9c6f0a1a84f7bbf14a1f5f92e68fa
-      SENTRY_DB_USER: sentry
-      SENTRY_DB_PASSWORD: sentry
-      SENTRY_DB_NAME: sentry
-      SENTRY_POSTGRES_HOST: postgres
-      SENTRY_REDIS_HOST: redis
-      SENTRY_REDIS_DB: 2
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-    command: ["run", "worker"]
-    restart: always
-
-  sentry-cron:
-    image: getsentry/sentry:latest
-    container_name: sentry-cron
-    depends_on:
-      sentry:
-          condition: service_started
-    environment:
-      SENTRY_SECRET_KEY: f4a9c6f0a1a84f7bbf14a1f5f92e68fa
-      SENTRY_DB_USER: sentry
-      SENTRY_DB_PASSWORD: sentry
-      SENTRY_DB_NAME: sentry
-      SENTRY_POSTGRES_HOST: postgres
-      SENTRY_REDIS_HOST: redis
-      SENTRY_REDIS_DB: 2
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-    command: ["run", "cron"]
-    restart: always
+      - uploads:/code/uploads
 
   nginx:
     image: nginx:latest
     container_name: nginx
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./LocalServer/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       ocolecionadorbackend:
         condition: service_started
@@ -230,8 +199,6 @@ services:
       metabase:
         condition: service_started
       portainer:
-        condition: service_started
-      sentry:
         condition: service_started
     ports:
       - "8080:80"
@@ -253,4 +220,6 @@ volumes:
   redis_data:
   portainer-data:
   metabase-data:
+  model-data:
+  uploads:
   

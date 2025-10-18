@@ -9,19 +9,26 @@ import tensorflow as tf
 from minio import Minio
 from PIL import Image
 import random
-import sentry_sdk
-import logging
 import gc
+import multiprocessing
 from tensorflow.keras import backend as K
 
-logging.basicConfig(level=logging.INFO)
+import logging
+import sentry_sdk
+from sentry_sdk.integrations.logging import LoggingIntegration
+
+sentry_logging = LoggingIntegration(
+    level=logging.INFO,       
+    event_level=logging.ERROR
+)
 
 sentry_sdk.init(
-    dsn="http://a0a76341b1b32f0dd94a320edcd8d306@sentry:9000/2",
-    send_default_pii=True,
-    debug=True,
+    "http://b908dfbae5f8493cb8a708de0094f3f2@glitchtip:8000/2",
+    integrations=[sentry_logging],
     traces_sample_rate=1.0
 )
+
+logging.basicConfig(level=logging.INFO)
 
 gpus = tf.config.list_physical_devices('GPU')
 if gpus:
@@ -65,7 +72,7 @@ def buscar_split(item_id):
 
 def escolher_split():
     r = random.random()
-    return "train" if r < 0.7 else "val" if r < 0.9 else "test"
+    return "training" if r < 0.7 else "validation" if r < 0.9 else "test"
 
 def tf_augmentations(image_tensor):
     augmentations = {
@@ -123,11 +130,17 @@ def processar_imagem(bucket, filename, categoria, item_id):
         logging.info(f"✅ {filename} (item_id={item_id}) salvo em {split}/ com variações")
     except Exception as e:
         logging.exception("Erro ao processar imagem")
-        sentry_sdk.capture_exception(e)
     finally:
         K.clear_session()
         del img_tensor, img_array
         gc.collect()
+
+
+def worker(bucket, filename, categoria, item_id):
+    try:
+        processar_imagem(bucket, filename, categoria, item_id)
+    except Exception as e:
+        logging.exception("Erro no subprocessamento da imagem")
 
 def callback(ch, method, properties, body):
     try:
@@ -138,14 +151,13 @@ def callback(ch, method, properties, body):
 
         if caminho and categoria and item_id:
             bucket, filename = caminho.split("//", 1)
-            logging.info(f"🔍 Processando {filename} do bucket {bucket}")
-            processar_imagem(bucket, filename, categoria, item_id)
+            logging.info(f"🔍 Processando {filename} do bucket {bucket} em subprocesso")
+
+            p = multiprocessing.Process(target=worker, args=(bucket, filename, categoria, item_id))
+            p.start()
+            p.join()
     except Exception as e:
         logging.exception("Erro no callback do RabbitMQ")
-        sentry_sdk.capture_exception(e)
-        
-    sentry_sdk.capture_message("🚨 TESTE")
-
 def main():
     connection = pika.BlockingConnection(pika.ConnectionParameters(
         host="rabbitmq",
