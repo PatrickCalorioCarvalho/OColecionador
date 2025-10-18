@@ -9,20 +9,17 @@ import tensorflow as tf
 from minio import Minio
 from PIL import Image
 import random
-#import sentry_sdk
+import sentry_sdk
 import logging
 import gc
 import multiprocessing
 from tensorflow.keras import backend as K
 
-logging.basicConfig(level=logging.INFO)
+sentry_sdk.init("http://cf5e978c13b14076b919454318fbc7d7@glitchtip:8000/1")
 
-#sentry_sdk.init(
-#    dsn="http://a0a76341b1b32f0dd94a320edcd8d306@sentry:9000/2",
-#    send_default_pii=True,
-#    debug=True,
-#    traces_sample_rate=1.0
-#)
+division_by_zero = 1 / 0
+
+logging.basicConfig(level=logging.INFO)
 
 gpus = tf.config.list_physical_devices('GPU')
 if gpus:
