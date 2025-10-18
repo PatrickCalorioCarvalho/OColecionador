@@ -115,7 +115,9 @@ def train():
         model.fit(train_gen, validation_data=val_gen, epochs=3)
 
         loss, acc = model.evaluate(test_gen)
-        print(f"📊 Test accuracy: {acc:.4f} | Test loss: {loss:.4f}")
+        acc = float(f"{acc:.4f}")
+        loss = float(f"{loss:.4f}")
+        print(f"📊 Test accuracy: {str(acc)} | Test loss: {str(loss)}")
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         model_filename = f"classifier_{timestamp}.keras"
@@ -123,7 +125,7 @@ def train():
         os.makedirs(MODEL_VOLUME, exist_ok=True)
         model.save(model_path)
         print(f"✅ Modelo salvo localmente: {model_path}")
-        
+
         if not minio_client.bucket_exists(BUCKET_MODELS):
             minio_client.make_bucket(BUCKET_MODELS)
         minio_client.fput_object(BUCKET_MODELS, model_filename, model_path)
