@@ -14,20 +14,20 @@ import gc
 import multiprocessing
 from tensorflow.keras import backend as K
 import sentry_sdk
-import sys
 
-def handle_exception(exc_type, exc_value, exc_traceback):
-    sentry_sdk.capture_exception(exc_value)
-    sys.__excepthook__(exc_type, exc_value, exc_traceback)
 
 sentry_sdk.init(
     "http://cf5e978c13b14076b919454318fbc7d7@glitchtip:8000/1",
     traces_sample_rate=1.0
 )
 
-sys.excepthook = handle_exception
+try:
+    division_by_zero = 1 / 0
+except Exception as e:
+    sentry_sdk.capture_exception(e)
 
-division_by_zero = 1 / 0
+sentry_sdk.flush(timeout=5)
+print("Evento enviado para o GlitchTip")
 
 logging.basicConfig(level=logging.INFO)
 
