@@ -5,4 +5,3 @@ minio==7.1.0
 tensorflow==2.6.0
 numpy==1.19.5
 pillow==8.4.0
-sentry-sdk==1.40.4

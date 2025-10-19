@@ -9,21 +9,8 @@ import os
 import json
 import gc
 import logging
-import sentry_sdk
-from sentry_sdk.integrations.logging import LoggingIntegration
 
 app = FastAPI()
-
-sentry_logging = LoggingIntegration(
-    level=logging.INFO,       
-    event_level=logging.ERROR
-)
-
-sentry_sdk.init(
-    "http://8fae73ef8af543b8898e7883f9877a97@glitchtip:8000/4",
-    integrations=[sentry_logging],
-    traces_sample_rate=1.0
-)
 
 logging.basicConfig(level=logging.INFO)
 
