@@ -109,6 +109,21 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
+  ocolecionadorclassifier:
+    build: ./OColecionadorClassifier/
+    container_name: OColecionadorClassifier
+    runtime: nvidia
+    gpus:
+      - capabilities: [gpu]
+    depends_on:
+      minio:
+        condition: service_started
+    ports:
+      - "5001:5001"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+
   ocolecionadortraining:
     build: ./OColecionadorTraining/
     container_name: OColecionadorTraining
