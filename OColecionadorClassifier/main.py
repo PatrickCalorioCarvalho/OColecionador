@@ -67,4 +67,7 @@ async def classify(file: UploadFile = File(...)):
     del model
     K.clear_session()
     gc.collect()
+    threshold = 0.8
+    if confidence < threshold:
+        return {"classe": "Indefinido", "confianca": round(confidence, 4)}
     return {"classe": class_name, "confianca": round(confidence, 4)}
