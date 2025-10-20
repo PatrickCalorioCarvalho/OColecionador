@@ -5,6 +5,23 @@ from PIL import Image
 import numpy as np
 import io
 from minio import Minio
+import logging
+import sentry_sdk
+from sentry_sdk.integrations.logging import LoggingIntegration
+
+sentry_logging = LoggingIntegration(
+    level=logging.INFO,       
+    event_level=logging.ERROR
+)
+
+sentry_sdk.init(
+    "http://bb5ce3de2c2344fb92e3928b86505a71@glitchtip:8000/5",
+    integrations=[sentry_logging],
+    traces_sample_rate=1.0
+)
+
+logging.basicConfig(level=logging.INFO)
+
 
 BUCKET_MODELS = "ocolecionadorbucket-models"
 
