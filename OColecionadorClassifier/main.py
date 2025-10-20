@@ -40,7 +40,7 @@ def load_latest_model_and_classes():
     model_path = f"/tmp/{latest.object_name}"
     minio_client.fget_object(BUCKET_MODELS, latest.object_name, model_path)
     model = tf.keras.models.load_model(model_path)
-    json_name = latest.object_name.replace(".keras", ".json")
+    json_name = latest.object_name.replace("classifier_", "class_indices_").replace(".keras", ".json")
     json_path = f"/tmp/{json_name}"
     minio_client.fget_object(BUCKET_MODELS, json_name, json_path)
     with open(json_path, "r") as f:
