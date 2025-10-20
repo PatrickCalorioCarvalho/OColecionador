@@ -8,7 +8,7 @@ import numpy as np
 from datetime import datetime
 import psycopg2
 from collections import Counter
-
+import json
 import logging
 import sentry_sdk
 from sentry_sdk.integrations.logging import LoggingIntegration
@@ -140,14 +140,21 @@ def train():
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         model_filename = f"classifier_{timestamp}.keras"
         model_path = os.path.join(MODEL_VOLUME, model_filename)
+        class_indices_filename = f"class_indices_{timestamp}.json"
+        class_indices_path = os.path.join(MODEL_VOLUME, class_indices_filename)
+        
         os.makedirs(MODEL_VOLUME, exist_ok=True)
         model.save(model_path)
+        with open(class_indices_path, "w") as f:
+            json.dump(train_gen.class_indices, f)
         logging.info(f"✅ Modelo salvo localmente: {model_path}")
 
         if not minio_client.bucket_exists(BUCKET_MODELS):
             minio_client.make_bucket(BUCKET_MODELS)
         minio_client.fput_object(BUCKET_MODELS, model_filename, model_path)
         logging.info(f"✅ Modelo salvo no MinIO: {BUCKET_MODELS}/{model_filename}")
+        minio_client.fput_object(BUCKET_MODELS, class_indices_filename, class_indices_path)
+        logging.info(f"✅ Modelo salvo no MinIO: {BUCKET_MODELS}/{class_indices_filename}")
 
         model_id = save_metrics_to_db(
             train_gen.samples,
