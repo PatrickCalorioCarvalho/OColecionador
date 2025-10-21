@@ -151,7 +151,7 @@ services:
     ports:
       - "9443:9443"
       - "9002:9000"
-
+      
   metabase:
     image: metabase/metabase:latest
     container_name: metabase

@@ -19,5 +19,5 @@ jobs:
           OC_NGROCK_TOKEN: ${{ secrets.OC_NGROCK_TOKEN }}
         run: |
           docker compose up -d --build --force-recreate
-          docker compose --profile manual up --no-start --build --force-recreate OColecionadorTraining
+          docker compose --profile manual up --no-start --build --force-recreate ocolecionadortraining
           docker ps -a
