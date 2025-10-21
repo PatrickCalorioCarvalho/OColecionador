@@ -1,7 +1,7 @@
 import os
 from minio import Minio
 import tempfile, shutil
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
 from tensorflow.keras import layers, models
 import tensorflow as tf
 import faiss
