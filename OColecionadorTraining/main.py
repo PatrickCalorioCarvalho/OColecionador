@@ -5,6 +5,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator, load_img, i
 from tensorflow.keras import layers, models
 import tensorflow as tf
 import faiss
+from PIL import Image
 import numpy as np
 from datetime import datetime
 import psycopg2
@@ -38,6 +39,11 @@ minio_client = Minio(
     secret_key="OColecionador@2025",
     secure=False
 )
+def preprocess_image(path):
+    image = Image.open(path).convert("RGB")
+    image = image.resize((224, 224), Image.BILINEAR)
+    array = np.array(image) / 255.0
+    return np.expand_dims(array, axis=0)
 
 def download_augmentations(tmpdir):
     for obj in minio_client.list_objects(BUCKET_AUG, recursive=True):
@@ -194,10 +200,8 @@ def embedding(model, timestamp):
         local_path = os.path.join("/tmp", obj.object_name.replace("/", "_"))
         try:
             minio_client.fget_object(BUCKET_ORIGINAIS, obj.object_name, local_path)
-
-            image = load_img(local_path, target_size=(224, 224))
-            array = img_to_array(image) / 255.0
-            input_array = np.expand_dims(array, axis=0)
+            
+            input_array = preprocess_image(local_path)
 
             emb = embedding_model.predict(input_array)[0]
             embeddings.append(emb)

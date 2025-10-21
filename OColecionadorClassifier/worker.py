@@ -35,7 +35,7 @@ minio_client = Minio(
 
 def preprocess_image(image_bytes):
     image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-    image = image.resize((224, 224))
+    image = image.resize((224, 224), Image.BILINEAR)
     array = np.array(image) / 255.0
     return np.expand_dims(array, axis=0)
 
