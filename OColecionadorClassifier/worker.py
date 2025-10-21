@@ -99,8 +99,9 @@ def main():
     distancia_minima = min([s["distancia"] for s in semelhantes]) if semelhantes else float("inf")
     if confidence < 0.9 or distancia_minima > 25.0:
         class_name = "Indefinido"
+        confidence = 0.0
         semelhantes = []
-        
+
     print(json.dumps({
         "classe": class_name,
         "confianca": round(confidence, 4),
