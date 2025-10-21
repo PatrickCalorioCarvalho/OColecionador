@@ -84,7 +84,7 @@ graph TD;
     B --> C[Salvamento no MinIO - Bucket Original]
     B --> D[Registro no SQL Server]
     B --> E[Envio para Serviço de Classificação]
-    E --> F[Classificador (TensorFlow) retorna categoria]
+    E --> F[Classificador - TensorFlow retorna categoria]
     F --> G[Armazena resultado no banco]
     B --> H[Serviço de Augmentations gera variações]
     H --> I[Bucket Processado no MinIO]
