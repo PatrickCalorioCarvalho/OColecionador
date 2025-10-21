@@ -124,7 +124,7 @@ def train():
 
         model = models.Sequential([
             base,
-            layers.GlobalAveragePooling2D(),
+            layers.GlobalAveragePooling2D(name="embedding"),
             layers.Dense(128, activation='relu'),
             layers.Dropout(0.3),
             layers.Dense(train_gen.num_classes, activation='softmax')
@@ -178,12 +178,8 @@ def train():
 
 def embedding(model, timestamp):
     BUCKET_ORIGINAIS = "ocolecionadorbucket"
-    EMBEDDING_LAYER_NAME = "dense"
 
-    embedding_model = tf.keras.Model(
-        inputs=model.input,
-        outputs=model.get_layer(EMBEDDING_LAYER_NAME).output
-    )
+    embedding_model = tf.keras.Model(inputs=model.input,outputs=model.get_layer("embedding").output)
 
     embeddings = []
     labels = []

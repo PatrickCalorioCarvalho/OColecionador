@@ -83,7 +83,7 @@ def main():
     confidence = float(np.max(prediction))
     class_name = index_to_class.get(class_index, str(class_index))
 
-    embedding_model = tf.keras.Model(inputs=model.input, outputs=model.get_layer("dense").output)
+    embedding_model = tf.keras.Model(inputs=model.input,outputs=model.get_layer("embedding").output)
     query_embedding = embedding_model.predict(input_array)[0].reshape(1, -1)
 
     semelhantes = []
@@ -97,7 +97,7 @@ def main():
             for j, i in enumerate(I[0])
         ]
     distancia_minima = min([s["distancia"] for s in semelhantes]) if semelhantes else float("inf")
-    if confidence < 0.90 or distancia_minima > 75.0:
+    if confidence < 0.95 or distancia_minima > 75.0:
         class_name = "Indefinido"
         confidence = 0.0
         semelhantes = []
