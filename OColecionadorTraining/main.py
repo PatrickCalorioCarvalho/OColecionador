@@ -122,13 +122,14 @@ def train():
         base = tf.keras.applications.MobileNetV2(weights='imagenet', include_top=False, input_shape=(224,224,3))
         base.trainable = False
 
-        model = models.Sequential([
-            base,
-            layers.GlobalAveragePooling2D(name="embedding"),
-            layers.Dense(128, activation='relu'),
-            layers.Dropout(0.3),
-            layers.Dense(train_gen.num_classes, activation='softmax')
-        ])
+        inputs = tf.keras.Input(shape=(224, 224, 3))
+        x = base(inputs, training=False)
+        x = layers.GlobalAveragePooling2D(name="embedding")(x)
+        x = layers.Dense(128, activation='relu')(x)
+        x = layers.Dropout(0.3)(x)
+        outputs = layers.Dense(train_gen.num_classes, activation='softmax')(x)
+
+        model = tf.keras.Model(inputs, outputs)
 
         model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
         model.fit(train_gen, validation_data=val_gen, epochs=3)
@@ -179,8 +180,10 @@ def train():
 def embedding(model, timestamp):
     BUCKET_ORIGINAIS = "ocolecionadorbucket"
 
-    embedding_model = tf.keras.Model(inputs=model.input,outputs=model.get_layer("embedding").output)
-
+    embedding_model = tf.keras.Model(
+        inputs=model.input,
+        outputs=model.get_layer("embedding").output
+    )
     embeddings = []
     labels = []
 

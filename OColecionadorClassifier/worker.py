@@ -83,7 +83,10 @@ def main():
     confidence = float(np.max(prediction))
     class_name = index_to_class.get(class_index, str(class_index))
 
-    embedding_model = tf.keras.Model(inputs=model.input,outputs=model.get_layer("embedding").output)
+    embedding_model = tf.keras.Model(
+        inputs=model.input,
+        outputs=model.get_layer("embedding").output
+    )
     query_embedding = embedding_model.predict(input_array)[0].reshape(1, -1)
 
     semelhantes = []
