@@ -4,6 +4,7 @@ import tempfile, shutil
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras import layers, models
 import tensorflow as tf
+import faiss
 import numpy as np
 from datetime import datetime
 import psycopg2
@@ -168,10 +169,66 @@ def train():
         save_distribution_to_db(model_id, "training", count_classes_by_subset(train_gen))
         save_distribution_to_db(model_id, "validation", count_classes_by_subset(val_gen))
         save_distribution_to_db(model_id, "test", count_classes_by_subset(test_gen))
+
+        embedding(model, timestamp)
         
     finally:
         shutil.rmtree(tmp)
         logging.info("🧹 Diretório temporário removido")
+
+def embedding(model, timestamp):
+    BUCKET_ORIGINAIS = "ocolecionadorbucket"
+    EMBEDDING_LAYER_NAME = "dense"
+
+    embedding_model = tf.keras.Model(
+        inputs=model.input,
+        outputs=model.get_layer(EMBEDDING_LAYER_NAME).output
+    )
+
+    embeddings = []
+    labels = []
+
+    for obj in minio_client.list_objects(BUCKET_ORIGINAIS, recursive=True):
+        if not obj.object_name.lower().endswith((".jpg", ".jpeg", ".png")):
+            continue
+
+        local_path = os.path.join("/tmp", obj.object_name.replace("/", "_"))
+        try:
+            minio_client.fget_object(BUCKET_ORIGINAIS, obj.object_name, local_path)
+
+            image = load_img(local_path, target_size=(224, 224))
+            array = img_to_array(image) / 255.0
+            input_array = np.expand_dims(array, axis=0)
+
+            emb = embedding_model.predict(input_array)[0]
+            embeddings.append(emb)
+            labels.append(obj.object_name)
+        except Exception as e:
+            logging.warning(f"⚠️ Erro ao processar {obj.object_name}: {str(e)}")
+
+    if not embeddings:
+        logging.warning("⚠️ Nenhuma imagem original foi indexada.")
+        return
+
+    embeddings_np = np.array(embeddings)
+    index = faiss.IndexFlatL2(embeddings_np.shape[1])
+    index.add(embeddings_np)
+
+    index_filename = f"index_original_{timestamp}.faiss"
+    labels_filename = f"labels_original_{timestamp}.npy"
+    index_path = os.path.join(MODEL_VOLUME, index_filename)
+    labels_path = os.path.join(MODEL_VOLUME, labels_filename)
+
+    faiss.write_index(index, index_path)
+    np.save(labels_path, labels)
+
+    minio_client.fput_object(BUCKET_MODELS, index_filename, index_path)
+    logging.info(f"✅ Índice salvo no MinIO: {BUCKET_MODELS}/{index_filename}")
+    minio_client.fput_object(BUCKET_MODELS, labels_filename, labels_path)
+    logging.info(f"✅ Labels salvos no MinIO: {BUCKET_MODELS}/{labels_filename}")
+
+
+
 
 if __name__ == '__main__':
     train()
