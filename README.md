@@ -59,6 +59,7 @@ OColecionador/
 └── OColecionadorMobile/            # Aplicativo React Native (Expo)
     ├── app/                        # Telas e navegação
     ├── assets/                     # Ícones e imagens
+    ├── services/                   # Serviços de integração 
     └── models/                     # Modelos de dados locais
 ```
 
