@@ -39,64 +39,52 @@ def preprocess_image(image_bytes):
     array = np.array(image) / 255.0
     return np.expand_dims(array, axis=0)
 
-def load_latest_model_and_classes():
+def load_latest_model_and_index():
     objects = list(minio_client.list_objects(BUCKET_MODELS, recursive=True))
 
-    keras_files = [obj for obj in objects if obj.object_name.endswith(".keras")]
-    json_files = [obj for obj in objects if obj.object_name.endswith(".json") and obj.object_name.startswith("classifier_")]
+    def extract_ts(name): return name.split("_", 1)[1].rsplit(".", 1)[0]
 
-    def extract_timestamp(name):
-        parts = name.replace(".keras", "").replace(".json", "").split("_")
-        return "_".join(parts[1:]) if len(parts) > 1 else ""
+    keras_files = [obj for obj in objects if obj.object_name.startswith("classifier_") and obj.object_name.endswith(".keras")]
+    json_files = [obj for obj in objects if obj.object_name.startswith("class_indices_") and obj.object_name.endswith(".json")]
+    index_files = [obj for obj in objects if obj.object_name.startswith("index_original_") and obj.object_name.endswith(".faiss")]
+    labels_files = [obj for obj in objects if obj.object_name.startswith("labels_original_") and obj.object_name.endswith(".npy")]
 
-    keras_by_ts = {extract_timestamp(obj.object_name): obj for obj in keras_files}
-    json_by_ts = {extract_timestamp(obj.object_name): obj for obj in json_files}
+    keras_ts = {extract_ts(obj.object_name): obj for obj in keras_files}
+    json_ts = {extract_ts(obj.object_name): obj for obj in json_files}
+    index_ts = {extract_ts(obj.object_name): obj for obj in index_files}
+    labels_ts = {extract_ts(obj.object_name): obj for obj in labels_files}
 
-    common_ts = sorted(set(keras_by_ts.keys()) & set(json_by_ts.keys()), reverse=True)
+    common_ts = sorted(set(keras_ts) & set(json_ts) & set(index_ts) & set(labels_ts), reverse=True)
     if not common_ts:
-        raise Exception("Nenhum par de arquivos .keras e .json encontrado com o mesmo timestamp.")
+        raise Exception("Nenhum conjunto completo de arquivos com timestamp comum encontrado.")
 
     ts = common_ts[0]
-    keras_obj = keras_by_ts[ts]
-    json_obj = json_by_ts[ts]
 
-    model_path = f"/tmp/{keras_obj.object_name}"
-    json_path = f"/tmp/{json_obj.object_name}"
-    minio_client.fget_object(BUCKET_MODELS, keras_obj.object_name, model_path)
-    minio_client.fget_object(BUCKET_MODELS, json_obj.object_name, json_path)
+    model_path = f"/tmp/{keras_ts[ts].object_name}"
+    json_path = f"/tmp/{json_ts[ts].object_name}"
+    index_path = f"/tmp/{index_ts[ts].object_name}"
+    labels_path = f"/tmp/{labels_ts[ts].object_name}"
+
+    minio_client.fget_object(BUCKET_MODELS, keras_ts[ts].object_name, model_path)
+    minio_client.fget_object(BUCKET_MODELS, json_ts[ts].object_name, json_path)
+    minio_client.fget_object(BUCKET_MODELS, index_ts[ts].object_name, index_path)
+    minio_client.fget_object(BUCKET_MODELS, labels_ts[ts].object_name, labels_path)
 
     model = tf.keras.models.load_model(model_path)
     with open(json_path, "r") as f:
         class_indices = json.load(f)
     index_to_class = {v: k for k, v in class_indices.items()}
-    return model, index_to_class
-
-def load_latest_index_and_labels():
-    objects = list(minio_client.list_objects(BUCKET_MODELS, recursive=True))
-    index_files = [obj for obj in objects if obj.object_name.startswith("index_original_") and obj.object_name.endswith(".faiss")]
-    labels_files = [obj for obj in objects if obj.object_name.startswith("labels_original_") and obj.object_name.endswith(".npy")]
-
-    if not index_files or not labels_files:
-        return None, None
-
-    latest_index = sorted(index_files, key=lambda x: x.last_modified, reverse=True)[0]
-    latest_labels = sorted(labels_files, key=lambda x: x.last_modified, reverse=True)[0]
-
-    index_path = f"/tmp/{latest_index.object_name}"
-    labels_path = f"/tmp/{latest_labels.object_name}"
-
-    minio_client.fget_object(BUCKET_MODELS, latest_index.object_name, index_path)
-    minio_client.fget_object(BUCKET_MODELS, latest_labels.object_name, labels_path)
-
     index = faiss.read_index(index_path)
     labels = np.load(labels_path, allow_pickle=True)
-    return index, labels
+
+    return model, index_to_class, index, labels
 
 def main():
     image_bytes = sys.stdin.buffer.read()
     input_array = preprocess_image(image_bytes)
 
-    model, index_to_class = load_latest_model_and_classes()
+    model, index_to_class, index, labels = load_latest_model_and_index()
+
     prediction = model.predict(input_array)
     class_index = int(np.argmax(prediction))
     confidence = float(np.max(prediction))
@@ -105,7 +93,6 @@ def main():
     embedding_model = tf.keras.Model(inputs=model.input, outputs=model.get_layer("dense").output)
     query_embedding = embedding_model.predict(input_array)[0].reshape(1, -1)
 
-    index, labels = load_latest_index_and_labels()
     semelhantes = []
     if index is not None and labels is not None:
         D, I = index.search(query_embedding, k=3)

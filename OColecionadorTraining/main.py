@@ -44,7 +44,7 @@ def download_augmentations(tmpdir):
         outpath = os.path.join(tmpdir, obj.object_name)
         os.makedirs(os.path.dirname(outpath), exist_ok=True)
         minio_client.fget_object(BUCKET_AUG, obj.object_name, outpath)
-    logging.info('✅ Imagens baixadas para', tmpdir)
+    logging.info(f"✅ Imagens baixadas para {tmpdir}")
 
 def count_classes_by_subset(generator):
     counts = Counter(generator.classes)
