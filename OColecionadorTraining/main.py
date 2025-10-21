@@ -1,9 +1,11 @@
 import os
 from minio import Minio
 import tempfile, shutil
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
 from tensorflow.keras import layers, models
 import tensorflow as tf
+import faiss
+from PIL import Image
 import numpy as np
 from datetime import datetime
 import psycopg2
@@ -37,13 +39,18 @@ minio_client = Minio(
     secret_key="OColecionador@2025",
     secure=False
 )
+def preprocess_image(path):
+    image = Image.open(path).convert("RGB")
+    image = image.resize((224, 224), Image.BILINEAR)
+    array = np.array(image) / 255.0
+    return np.expand_dims(array, axis=0)
 
 def download_augmentations(tmpdir):
     for obj in minio_client.list_objects(BUCKET_AUG, recursive=True):
         outpath = os.path.join(tmpdir, obj.object_name)
         os.makedirs(os.path.dirname(outpath), exist_ok=True)
         minio_client.fget_object(BUCKET_AUG, obj.object_name, outpath)
-    logging.info('✅ Imagens baixadas para', tmpdir)
+    logging.info(f"✅ Imagens baixadas para {tmpdir}")
 
 def count_classes_by_subset(generator):
     counts = Counter(generator.classes)
@@ -121,13 +128,14 @@ def train():
         base = tf.keras.applications.MobileNetV2(weights='imagenet', include_top=False, input_shape=(224,224,3))
         base.trainable = False
 
-        model = models.Sequential([
-            base,
-            layers.GlobalAveragePooling2D(),
-            layers.Dense(128, activation='relu'),
-            layers.Dropout(0.3),
-            layers.Dense(train_gen.num_classes, activation='softmax')
-        ])
+        inputs = tf.keras.Input(shape=(224, 224, 3))
+        x = base(inputs, training=False)
+        x = layers.GlobalAveragePooling2D(name="embedding")(x)
+        x = layers.Dense(128, activation='relu', name="embedding_dense")(x)
+        x = layers.Dropout(0.3)(x)
+        outputs = layers.Dense(train_gen.num_classes, activation='softmax')(x)
+
+        model = tf.keras.Model(inputs, outputs)
 
         model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
         model.fit(train_gen, validation_data=val_gen, epochs=3)
@@ -168,10 +176,59 @@ def train():
         save_distribution_to_db(model_id, "training", count_classes_by_subset(train_gen))
         save_distribution_to_db(model_id, "validation", count_classes_by_subset(val_gen))
         save_distribution_to_db(model_id, "test", count_classes_by_subset(test_gen))
+
+        embedding(model, timestamp)
         
     finally:
         shutil.rmtree(tmp)
         logging.info("🧹 Diretório temporário removido")
+
+def embedding(model, timestamp):
+    BUCKET_ORIGINAIS = "ocolecionadorbucket"
+
+    embedding_model = tf.keras.Model(inputs=model.input, outputs=model.get_layer("embedding_dense").output)
+    
+    embeddings = []
+    labels = []
+
+    for obj in minio_client.list_objects(BUCKET_ORIGINAIS, recursive=True):
+        if not obj.object_name.lower().endswith((".jpg", ".jpeg", ".png")):
+            continue
+
+        local_path = os.path.join("/tmp", obj.object_name.replace("/", "_"))
+        try:
+            minio_client.fget_object(BUCKET_ORIGINAIS, obj.object_name, local_path)
+            input_array = preprocess_image(local_path)
+            emb = embedding_model.predict(input_array)[0]
+            emb = emb / np.linalg.norm(emb)
+            embeddings.append(emb)
+            labels.append(obj.object_name)
+        except Exception as e:
+            logging.warning(f"⚠️ Erro ao processar {obj.object_name}: {str(e)}")
+
+    if not embeddings:
+        logging.warning("⚠️ Nenhuma imagem original foi indexada.")
+        return
+
+    embeddings_np = np.array(embeddings)
+    index = faiss.IndexFlatL2(embeddings_np.shape[1])
+    index.add(embeddings_np)
+
+    index_filename = f"index_original_{timestamp}.faiss"
+    labels_filename = f"labels_original_{timestamp}.npy"
+    index_path = os.path.join(MODEL_VOLUME, index_filename)
+    labels_path = os.path.join(MODEL_VOLUME, labels_filename)
+
+    faiss.write_index(index, index_path)
+    np.save(labels_path, labels)
+
+    minio_client.fput_object(BUCKET_MODELS, index_filename, index_path)
+    logging.info(f"✅ Índice salvo no MinIO: {BUCKET_MODELS}/{index_filename}")
+    minio_client.fput_object(BUCKET_MODELS, labels_filename, labels_path)
+    logging.info(f"✅ Labels salvos no MinIO: {BUCKET_MODELS}/{labels_filename}")
+
+
+
 
 if __name__ == '__main__':
     train()

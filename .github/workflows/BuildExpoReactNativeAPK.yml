@@ -3,6 +3,8 @@ name: Build Expo React Native APK
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+    paths:
+      - 'OColecionadorMobile/**'
 
 jobs:
   build:

@@ -139,6 +139,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
       - model-data:/mnt/modelos
+    profiles: ["manual"]
 
   portainer:
     image: portainer/portainer-ce:latest
@@ -150,7 +151,7 @@ services:
     ports:
       - "9443:9443"
       - "9002:9000"
-
+      
   metabase:
     image: metabase/metabase:latest
     container_name: metabase
