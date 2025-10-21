@@ -131,7 +131,7 @@ def train():
         inputs = tf.keras.Input(shape=(224, 224, 3))
         x = base(inputs, training=False)
         x = layers.GlobalAveragePooling2D(name="embedding")(x)
-        x = layers.Dense(128, activation='relu')(x)
+        x = layers.Dense(128, activation='relu', name="embedding_dense")(x)
         x = layers.Dropout(0.3)(x)
         outputs = layers.Dense(train_gen.num_classes, activation='softmax')(x)
 
@@ -186,10 +186,8 @@ def train():
 def embedding(model, timestamp):
     BUCKET_ORIGINAIS = "ocolecionadorbucket"
 
-    embedding_model = tf.keras.Model(
-        inputs=model.input,
-        outputs=model.get_layer("embedding").output
-    )
+    embedding_model = tf.keras.Model(inputs=model.input, outputs=model.get_layer("embedding_dense").output)
+    
     embeddings = []
     labels = []
 
@@ -200,10 +198,9 @@ def embedding(model, timestamp):
         local_path = os.path.join("/tmp", obj.object_name.replace("/", "_"))
         try:
             minio_client.fget_object(BUCKET_ORIGINAIS, obj.object_name, local_path)
-            
             input_array = preprocess_image(local_path)
-
             emb = embedding_model.predict(input_array)[0]
+            emb = emb / np.linalg.norm(emb)
             embeddings.append(emb)
             labels.append(obj.object_name)
         except Exception as e:

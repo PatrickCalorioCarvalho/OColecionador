@@ -83,11 +83,11 @@ def main():
     confidence = float(np.max(prediction))
     class_name = index_to_class.get(class_index, str(class_index))
 
-    embedding_model = tf.keras.Model(
-        inputs=model.input,
-        outputs=model.get_layer("embedding").output
-    )
-    query_embedding = embedding_model.predict(input_array)[0].reshape(1, -1)
+    embedding_model = tf.keras.Model(inputs=model.input, outputs=model.get_layer("embedding_dense").output)
+    
+    query_embedding = embedding_model.predict(input_array)[0]
+    query_embedding = query_embedding / np.linalg.norm(query_embedding)
+    query_embedding = query_embedding.reshape(1, -1)
 
     semelhantes = []
     if index is not None and labels is not None:
