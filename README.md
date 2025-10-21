@@ -1,95 +1,167 @@
-# OColecionador - Projeto de Classificação de Imagens com MinIO e TensorFlow
+# 🧠 OColecionador  
 ![Logo do OColecionador](logo.png)
 
-## Descrição
-O **OColecionador** tem como objetivo capturar imagens pelo aplicativo mobile (React Native), enviá-las para um backend em Node.js, armazená-las em um bucket no MinIO e gerar automaticamente variações dessas imagens (rotação e mudança de coloração) para treinamento de um modelo de classificação com Python e TensorFlow. O modelo treinado pode ser utilizado posteriormente pelo backend ou por outro serviço para classificação automática de imagens.
+Sistema completo para **coleta, classificação e gerenciamento de imagens de colecionáveis**, integrando **mobile app, backend em .NET, e serviços de IA em Python com TensorFlow**.  
+O objetivo é automatizar o fluxo desde a captura da imagem até a classificação e treinamento do modelo, com pipeline totalmente modular e orquestrado via Docker.
 
-Além de armazenar a imagem original no MinIO, o backend também salva no banco de dados MongoDB informações sobre a imagem, incluindo o usuário, o ID da imagem no bucket e outros metadados relevantes.
+---
 
-Além disso, toda vez que uma imagem é enviada para o backend, ele realiza uma requisição para uma API em Python que utiliza o modelo mais atualizado do treinamento para classificar a imagem e retornar a categoria correspondente. Essa categoria também é armazenada no banco de dados MongoDB.
+## 🚀 Visão Geral
 
-## Tecnologias Utilizadas
-- **Frontend**: React Native
-- **Backend**: Node.js
-- **Armazenamento**: MinIO
-- **Banco de Dados**: MongoDB
-- **Processamento e Treinamento**: Python, TensorFlow
-- **API de Classificação**: Python (Flask/FastAPI) + Modelo treinado em TensorFlow
+O **OColecionador** é composto por múltiplos serviços que trabalham em conjunto:
 
-## Fluxo do Sistema
-1. O usuário captura uma imagem pelo aplicativo React Native.
-2. A imagem é enviada para o backend Node.js.
-3. O backend salva a imagem original em um bucket no MinIO.
-4. O backend registra no MongoDB informações sobre a imagem (usuário, ID no bucket e metadados).
-5. O backend faz uma requisição para a API de classificação em Python com a imagem.
-6. A API de classificação retorna a categoria correspondente baseada no modelo mais atualizado.
-7. O backend salva a categoria da imagem no MongoDB.
-8. O backend gera variações da imagem (rotação e coloração) e as armazena em outro bucket no MinIO.
-9. Um processo de treinamento em Python e TensorFlow consome essas imagens para gerar um modelo de classificação.
-10. O modelo treinado pode ser utilizado pelo backend ou outro serviço para classificação automática de novas imagens enviadas.
+| Módulo | Descrição |
+|--------|------------|
+| **OColecionadorMobile** | App em React Native (Expo) para captura e envio de imagens. |
+| **OColecionadorBackEnd** | API REST em C# (.NET 8) responsável por autenticação, armazenamento no MinIO e integração com os serviços de IA. |
+| **OColecionadorAugmentations** | Serviço Python que gera variações das imagens (rotação, cor, brilho, etc.) para aumentar o dataset. |
+| **OColecionadorTraining** | Serviço Python responsável por treinar o modelo de classificação usando TensorFlow. |
+| **OColecionadorClassifier** | Serviço Python que expõe a inferência do modelo via API (classificação automática). |
+| **LocalServer** | Ambiente local e orquestração via Docker Compose, com perfis `manual` e `automatic`. |
 
-## Diagrama do Fluxo do Sistema
+---
+
+## 🧩 Tecnologias Utilizadas
+
+| Camada | Tecnologias |
+|--------|--------------|
+| **Frontend** | React Native, Expo |
+| **Backend** | C#, .NET 8, ASP.NET Core, Entity Framework Core |
+| **IA / ML** | Python, TensorFlow, NumPy, OpenCV |
+| **Armazenamento** | MinIO (S3-compatible) |
+| **Banco de Dados** | SQL Server |
+| **Infraestrutura** | Docker, Docker Compose |
+| **CI/CD** | GitHub Actions |
+| **Autenticação** | JWT Tokens |
+
+---
+
+## ⚙️ Estrutura do Repositório
+
+```
+OColecionador/
+│
+├── .github/workflows/              # CI/CD pipelines
+├── LocalServer/                    # Configurações locais e Docker Compose
+│
+├── OColecionadorAugmentations/     # Serviço de augmentations (Python)
+├── OColecionadorClassifier/        # Serviço de classificação (TensorFlow)
+├── OColecionadorTraining/          # Serviço de treinamento (TensorFlow)
+│
+├── OColecionadorBackEnd/           # API principal (.NET 8)
+│   ├── Controllers/                # Endpoints REST
+│   ├── Data/                       # Contexto de banco de dados (EF Core)
+│   ├── Model/                      # Modelos de domínio
+│   ├── Service/                    # Regras de negócio
+│   ├── Migrations/                 # Migrações EF Core
+│   └── Properties/                 # Configurações do projeto
+│
+└── OColecionadorMobile/            # Aplicativo React Native (Expo)
+    ├── app/                        # Telas e navegação
+    ├── assets/                     # Ícones e imagens
+    └── models/                     # Modelos de dados locais
+```
+
+---
+
+## 🔄 Fluxo do Sistema
+
+1. O usuário captura a imagem no **app mobile**.  
+2. O **backend .NET** recebe e armazena a imagem original no **MinIO**.  
+3. O backend registra metadados no banco **SQL Server**.  
+4. O serviço **Augmentations** gera variações e salva no bucket de treinamento.  
+5. O serviço **Training** consome as imagens e atualiza o modelo TensorFlow.  
+6. O serviço **Classifier** usa o modelo treinado para classificar novas imagens.  
+7. O resultado da classificação é retornado ao backend e exibido no app.
+
+---
+
+## 🧭 Diagrama do Fluxo
 
 ```mermaid
 graph TD;
-    A[Usuário captura imagem no app] --> B[Envio para Backend Node.js]
+    A[Usuário captura imagem no App React Native] --> B[API .NET Backend]
     B --> C[Salvamento no MinIO - Bucket Original]
-    B --> D[Registro no MongoDB - Metadados da Imagem]
-    B --> E[Requisição para API de Classificação]
-    E --> F[Retorno da Categoria da Imagem]
-    F --> G[Salvamento da Categoria no MongoDB]
-    B --> H[Geração de variações]
-    H --> I[Salvamento no MinIO - Bucket Processado]
-    I --> J[Treinamento do modelo com TensorFlow]
-    J --> K[Modelo de Classificação Treinado]
-    K --> L[Uso do modelo para classificação automática]
+    B --> D[Registro no SQL Server]
+    B --> E[Envio para Serviço de Classificação]
+    E --> F[Classificador (TensorFlow) retorna categoria]
+    F --> G[Armazena resultado no banco]
+    B --> H[Serviço de Augmentations gera variações]
+    H --> I[Bucket Processado no MinIO]
+    I --> J[Serviço de Treinamento atualiza modelo]
+    J --> K[Modelo treinado disponível para Classifier]
 ```
 
-## Como Rodar o Projeto
-### Backend
-1. Clone o repositório.
-2. Instale as dependências com:
-   ```sh
-   npm install
-   ```
-3. Configure o acesso ao MinIO e MongoDB no arquivo de ambiente.
-4. Inicie o servidor:
-   ```sh
-   npm start
-   ```
+---
 
-### Frontend
-1. No diretório do app, instale as dependências:
-   ```sh
-   npm install
-   ```
-2. Inicie o aplicativo:
-   ```sh
-   npm start
-   ```
+## 🐳 Execução via Docker
 
-### API de Classificação
-1. Navegue até o diretório da API de classificação.
-2. Instale as dependências:
-   ```sh
-   pip install -r requirements.txt
-   ```
-3. Inicie a API:
-   ```sh
-   python api.py
-   ```
+### 🔹 Subir todo o ambiente
+```bash
+docker compose up --build
+```
 
-### Treinamento do Modelo
-1. Navegue até o diretório do script de treinamento.
-2. Instale as dependências:
-   ```sh
-   pip install -r requirements.txt
-   ```
-3. Execute o treinamento:
-   ```sh
-   python train.py
-   ```
+### 🔹 Executar apenas o perfil manual (ex: treinamento)
+```bash
+docker compose --profile manual up
+```
 
-## Conclusão
-O **OColecionador** fornece um pipeline completo para captura, armazenamento, processamento, treinamento e classificação de imagens. Com a automação da geração de variações das imagens, garantimos um conjunto de dados mais robusto para o treinamento do modelo de classificação. Além disso, a integração com a API de classificação permite que cada nova imagem enviada seja automaticamente categorizada com base no modelo mais atualizado.
+### 🔹 Executar apenas os serviços automáticos
+```bash
+docker compose --profile automatic up
+```
 
+---
+
+## 🧠 Pipeline de IA
+
+| Etapa | Serviço | Descrição |
+|-------|----------|-----------|
+| **Coleta** | Mobile | Captura imagens e envia ao backend |
+| **Armazenamento** | Backend | Envia ao MinIO e registra metadados |
+| **Augmentations** | Python | Cria variações de treino |
+| **Treinamento** | Python (TensorFlow) | Treina e atualiza o modelo |
+| **Classificação** | Python API | Classifica novas imagens em tempo real |
+
+---
+
+## 🧰 Desenvolvimento
+
+### Backend (.NET)
+```bash
+cd OColecionadorBackEnd
+dotnet restore
+dotnet run
+```
+
+### Mobile (React Native)
+```bash
+cd OColecionadorMobile
+npm install
+npm start
+```
+
+### Serviços Python
+```bash
+cd OColecionadorAugmentations
+pip install -r requirements.txt
+python main.py
+```
+
+---
+
+## 📦 Status do Projeto
+
+🚧 **Em desenvolvimento ativo**  
+✅ Arquitetura modular consolidada  
+✅ Integração total via Docker  
+🧠 Modelos TensorFlow em evolução  
+📱 App mobile conectado ao backend  
+
+---
+
+## 👨‍💻 Autor
+
+**Patrick Calorio Carvalho**  
+📍 Desenvolvedor Full Stack e entusiasta de IA aplicada  
+🔗 [github.com/PatrickCalorioCarvalho](https://github.com/PatrickCalorioCarvalho)
