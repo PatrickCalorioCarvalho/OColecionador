@@ -42,33 +42,26 @@ def preprocess_image(image_bytes):
 def load_latest_model_and_index():
     objects = list(minio_client.list_objects(BUCKET_MODELS, recursive=True))
 
-    def extract_ts(name): return name.split("_", 1)[1].rsplit(".", 1)[0]
+    def latest_file(objects, prefix, suffix):
+        files = [obj for obj in objects if obj.object_name.startswith(prefix) and obj.object_name.endswith(suffix)]
+        if not files:
+            raise Exception(f"Arquivo não encontrado: {prefix}*{suffix}")
+        return sorted(files, key=lambda x: x.last_modified, reverse=True)[0]
 
-    keras_files = [obj for obj in objects if obj.object_name.startswith("classifier_") and obj.object_name.endswith(".keras")]
-    json_files = [obj for obj in objects if obj.object_name.startswith("class_indices_") and obj.object_name.endswith(".json")]
-    index_files = [obj for obj in objects if obj.object_name.startswith("index_original_") and obj.object_name.endswith(".faiss")]
-    labels_files = [obj for obj in objects if obj.object_name.startswith("labels_original_") and obj.object_name.endswith(".npy")]
+    keras_obj = latest_file(objects, "classifier_", ".keras")
+    json_obj = latest_file(objects, "class_indices_", ".json")
+    index_obj = latest_file(objects, "index_original_", ".faiss")
+    labels_obj = latest_file(objects, "labels_original_", ".npy")
 
-    keras_ts = {extract_ts(obj.object_name): obj for obj in keras_files}
-    json_ts = {extract_ts(obj.object_name): obj for obj in json_files}
-    index_ts = {extract_ts(obj.object_name): obj for obj in index_files}
-    labels_ts = {extract_ts(obj.object_name): obj for obj in labels_files}
+    model_path = f"/tmp/{keras_obj.object_name}"
+    json_path = f"/tmp/{json_obj.object_name}"
+    index_path = f"/tmp/{index_obj.object_name}"
+    labels_path = f"/tmp/{labels_obj.object_name}"
 
-    common_ts = sorted(set(keras_ts) & set(json_ts) & set(index_ts) & set(labels_ts), reverse=True)
-    if not common_ts:
-        raise Exception("Nenhum conjunto completo de arquivos com timestamp comum encontrado.")
-
-    ts = common_ts[0]
-
-    model_path = f"/tmp/{keras_ts[ts].object_name}"
-    json_path = f"/tmp/{json_ts[ts].object_name}"
-    index_path = f"/tmp/{index_ts[ts].object_name}"
-    labels_path = f"/tmp/{labels_ts[ts].object_name}"
-
-    minio_client.fget_object(BUCKET_MODELS, keras_ts[ts].object_name, model_path)
-    minio_client.fget_object(BUCKET_MODELS, json_ts[ts].object_name, json_path)
-    minio_client.fget_object(BUCKET_MODELS, index_ts[ts].object_name, index_path)
-    minio_client.fget_object(BUCKET_MODELS, labels_ts[ts].object_name, labels_path)
+    minio_client.fget_object(BUCKET_MODELS, keras_obj.object_name, model_path)
+    minio_client.fget_object(BUCKET_MODELS, json_obj.object_name, json_path)
+    minio_client.fget_object(BUCKET_MODELS, index_obj.object_name, index_path)
+    minio_client.fget_object(BUCKET_MODELS, labels_obj.object_name, labels_path)
 
     model = tf.keras.models.load_model(model_path)
     with open(json_path, "r") as f:
