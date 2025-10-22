@@ -100,7 +100,7 @@ def main():
             for j, i in enumerate(I[0])
         ]
     distancia_minima = min([s["distancia"] for s in semelhantes]) if semelhantes else float("inf")
-    if confidence < 0.9 or distancia_minima > 0.1:
+    if confidence < 0.8 or distancia_minima > 0.2:
         class_name = "Indefinido"
         confidence = 0.0
         semelhantes = []
