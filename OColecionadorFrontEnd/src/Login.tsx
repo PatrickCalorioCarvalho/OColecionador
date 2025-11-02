@@ -7,7 +7,7 @@ export default function Login() {
 
   const redirectToProvider = (provider: 'github' | 'google') => {
     const clientId = provider === 'github' ? process.env.REACT_APP_GITHUB_CLIENT_ID : process.env.REACT_APP_GOOGLE_CLIENT_ID;
-    const redirectUri = 'http://localhost:5000/auth/callback';
+    const redirectUri = `${window.location.origin}/auth/callback`;
     const state = encodeURIComponent(JSON.stringify({ Provider: provider, Mobile: isMobile }));
 
     const authUrl =
