@@ -49,10 +49,22 @@ namespace OColecionadorBackEnd.Controllers
                     { "redirect_uri", $"{hostAcess}/auth/callback" },
                     { "grant_type", "authorization_code" }
                 };
-                Console.WriteLine(values.ToString());
+
+                foreach (var kv in values)
+                {
+                    Console.WriteLine($"{kv.Key}: {kv.Value}");
+                }
+                
                 var content = new FormUrlEncodedContent(values);
                 var response = await client.PostAsync("https://oauth2.googleapis.com/token", content);
                 var tokenResponse = await response.Content.ReadFromJsonAsync<GoogleTokenResponse>();
+                if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.access_token))
+                {
+                    var raw = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine("Erro ao obter token do Google:");
+                    Console.WriteLine(raw);
+                    return BadRequest("Erro ao obter token.");
+                }
                 token = tokenResponse.access_token;
             }
 
