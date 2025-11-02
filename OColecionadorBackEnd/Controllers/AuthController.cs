@@ -12,8 +12,10 @@ namespace OColecionadorBackEnd.Controllers
         [HttpGet("callback")]
         public async Task<IActionResult> Callback([FromQuery] string code, [FromQuery] string state)
         {
+            var hostdns = Request.Host.ToString();
             var scheme = Request.Headers["X-Forwarded-Proto"].FirstOrDefault() ?? Request.Scheme;
-            var hostAcess = $"{scheme}://{Request.Host}";
+            scheme = hostdns.Contains("ngrok-free.app") ? "https" : scheme;
+            var hostAcess = $"{scheme}://{hostdns}";
             Console.WriteLine($"Host Acess: {hostAcess}");
             var decodedState = HttpUtility.UrlDecode(state);
             Console.WriteLine($"Decoded State: {decodedState}");
@@ -32,6 +34,10 @@ namespace OColecionadorBackEnd.Controllers
                     { "client_secret", Environment.GetEnvironmentVariable("GITHUB_CLIENT_SECRET") ?? "" },
                     { "code", code }
                 };
+                foreach (var kv in values)
+                {
+                    Console.WriteLine($"{kv.Key}: {kv.Value}");
+                }
 
                 var content = new FormUrlEncodedContent(values);
                 var response = await client.PostAsync("https://github.com/login/oauth/access_token", content);
