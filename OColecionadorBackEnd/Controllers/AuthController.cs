@@ -13,7 +13,9 @@ namespace OColecionadorBackEnd.Controllers
         public async Task<IActionResult> Callback([FromQuery] string code, [FromQuery] string state)
         {
             var hostAcess = $"{Request.Scheme}://{Request.Host}";
+            Console.WriteLine($"Host Acess: {hostAcess}");
             var decodedState = HttpUtility.UrlDecode(state);
+            Console.WriteLine($"Decoded State: {decodedState}");
             var stateData = JsonSerializer.Deserialize<AuthState>(decodedState);
             var provider = stateData.Provider;
             var isMobile = stateData.Mobile;
@@ -47,7 +49,7 @@ namespace OColecionadorBackEnd.Controllers
                     { "redirect_uri", $"{hostAcess}/auth/callback" },
                     { "grant_type", "authorization_code" }
                 };
-
+                Console.WriteLine(values.ToString());
                 var content = new FormUrlEncodedContent(values);
                 var response = await client.PostAsync("https://oauth2.googleapis.com/token", content);
                 var tokenResponse = await response.Content.ReadFromJsonAsync<GoogleTokenResponse>();
@@ -76,6 +78,6 @@ namespace OColecionadorBackEnd.Controllers
         public int expires_in { get; set; }
         public string token_type { get; set; }
         public string scope { get; set; }
-        public string id_token { get; set; } // opcional
+        public string id_token { get; set; } 
     }
 }
