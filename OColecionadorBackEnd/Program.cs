@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using OColecionadorBackEnd.Data;
 using OColecionadorBackEnd.Service;
@@ -23,6 +24,11 @@ namespace OColecionadorBackEnd
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
+
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost
+            });
 
             using (var scope = app.Services.CreateScope())
             {
