@@ -12,7 +12,8 @@ namespace OColecionadorBackEnd.Controllers
         [HttpGet("callback")]
         public async Task<IActionResult> Callback([FromQuery] string code, [FromQuery] string state)
         {
-            var hostAcess = $"{Request.Scheme}://{Request.Host}";
+            var scheme = Request.Headers["X-Forwarded-Proto"].FirstOrDefault() ?? Request.Scheme;
+            var hostAcess = $"{scheme}://{Request.Host}";
             Console.WriteLine($"Host Acess: {hostAcess}");
             var decodedState = HttpUtility.UrlDecode(state);
             Console.WriteLine($"Decoded State: {decodedState}");
