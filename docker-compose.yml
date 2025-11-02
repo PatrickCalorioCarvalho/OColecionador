@@ -96,14 +96,16 @@ services:
       - /etc/timezone:/etc/timezone:ro
   
   ocolecionadorfrontend:
-    build: ./OColecionadorFrontEnd/
+    build:
+      context: ./OColecionadorFrontEnd/
+      dockerfile: Dockerfile
+      args:
+        GITHUB_CLIENT_ID: ${OC_GITHUB_CLIENT_ID}
+        GOOGLE_CLIENT_ID: ${OC_GOOGLE_CLIENT_ID}
     container_name: OColecionadorFrontEnd
     depends_on:
       ocolecionadorbackend:
         condition: service_started
-    environment:
-      GITHUB_CLIENT_ID: ${OC_GITHUB_CLIENT_ID}
-      GOOGLE_CLIENT_ID: ${OC_GOOGLE_CLIENT_ID}
     ports:
       - "5002:5002"
     restart: always
