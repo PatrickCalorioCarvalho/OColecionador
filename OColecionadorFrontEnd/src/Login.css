@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+  background-color: #1e2a38;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+  padding: 20px;
+  box-sizing: border-box;
+  color: #e0f7fa;
+}
+
+.logo-image {
+  width: 240px;
+  height: auto;
+  margin-bottom: 8px;
+}
+
+.login-container h1 {
+  font-size: 2rem;
+  margin: 4px 0;
+  font-weight: 600;
+  color: #e0f7fa;
+}
+
+.login-container p {
+  font-size: 1rem;
+  margin: 8px 0 20px;
+  color: #b0cbd6;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.login-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.login-button img {
+  width: 22px;
+  height: 22px;
+}
+
+.login-button.github {
+  background-color: #24292e;
+  color: #fff;
+}
+
+.login-button.google {
+  background-color: #f5f5f5;
+  color: #333;
+  border: none;
+}
+
+.login-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
