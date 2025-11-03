@@ -62,14 +62,16 @@ namespace OColecionadorBackEnd.Middlewares
         public async Task<string?> GetGoogleUserId(string token)
         {
             var client = new HttpClient();
-            var response = await client.GetAsync($"https://www.googleapis.com/oauth2/v3/tokeninfo?id_token={token}");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await client.GetAsync("https://www.googleapis.com/oauth2/v3/userinfo");
             if (!response.IsSuccessStatusCode) return null;
 
             var json = await response.Content.ReadAsStringAsync();
             var data = JsonSerializer.Deserialize<JsonElement>(json);
 
-            string email = data.TryGetProperty("email", out var emailProp) ? emailProp.GetString() ?? "noemail" : "noemail";
             string name = data.TryGetProperty("name", out var nameProp) ? nameProp.GetString() ?? "unknown" : "unknown";
+            string email = data.TryGetProperty("email", out var emailProp) ? emailProp.GetString() ?? "noemail" : "noemail";
 
             return $"{name}_{email}_google";
         }
