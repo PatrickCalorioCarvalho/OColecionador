@@ -200,8 +200,6 @@ services:
       GLITCHTIP_ADMIN_EMAIL: ${OC_AUTH_EMAIL}
       GLITCHTIP_ADMIN_PASSWORD: ${OC_AUTH_PASSWORD}
       GLITCHTIP_ADMIN_USERNAME: ${OC_AUTH_USER}
-      FORCE_SCRIPT_NAME: /glitchtip
-      STATIC_URL: /glitchtip/static/
       CSRF_TRUSTED_ORIGINS: https://louse-model-lioness.ngrok-free.app
       GLITCHTIP_DOMAIN: https://louse-model-lioness.ngrok-free.app
     volumes:
