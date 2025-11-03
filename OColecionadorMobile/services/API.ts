@@ -10,7 +10,6 @@ api.interceptors.request.use(async (config) => {
   const token = await SecureStore.getItemAsync("token");
 
   if (token) {
-    console.log("Token encontrado no SecureStore:", token);
     config.headers.Authorization = `Bearer ${token}`;
   }
 

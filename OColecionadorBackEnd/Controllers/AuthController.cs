@@ -16,9 +16,7 @@ namespace OColecionadorBackEnd.Controllers
             var scheme = Request.Headers["X-Forwarded-Proto"].FirstOrDefault() ?? Request.Scheme;
             scheme = hostdns.Contains("ngrok-free.app") ? "https" : scheme;
             var hostAcess = $"{scheme}://{hostdns}";
-            Console.WriteLine($"Host Acess: {hostAcess}");
             var decodedState = HttpUtility.UrlDecode(state);
-            Console.WriteLine($"Decoded State: {decodedState}");
             var stateData = JsonSerializer.Deserialize<AuthState>(decodedState);
             var provider = stateData.Provider;
             var isMobile = stateData.Mobile;
@@ -34,10 +32,6 @@ namespace OColecionadorBackEnd.Controllers
                     { "client_secret", Environment.GetEnvironmentVariable("GITHUB_CLIENT_SECRET") ?? "" },
                     { "code", code }
                 };
-                foreach (var kv in values)
-                {
-                    Console.WriteLine($"{kv.Key}: {kv.Value}");
-                }
 
                 var content = new FormUrlEncodedContent(values);
                 var response = await client.PostAsync("https://github.com/login/oauth/access_token", content);
@@ -56,11 +50,6 @@ namespace OColecionadorBackEnd.Controllers
                     { "redirect_uri", $"{hostAcess}/auth/callback" },
                     { "grant_type", "authorization_code" }
                 };
-
-                foreach (var kv in values)
-                {
-                    Console.WriteLine($"{kv.Key}: {kv.Value}");
-                }
                 
                 var content = new FormUrlEncodedContent(values);
                 var response = await client.PostAsync("https://oauth2.googleapis.com/token", content);
