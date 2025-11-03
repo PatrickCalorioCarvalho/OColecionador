@@ -203,7 +203,7 @@ services:
       FORCE_SCRIPT_NAME: /glitchtip
       STATIC_URL: /glitchtip/static/
       CSRF_TRUSTED_ORIGINS: https://louse-model-lioness.ngrok-free.app
-      GLITCHTIP_DOMAIN: https://louse-model-lioness.ngrok-free.app/glitchtip
+      GLITCHTIP_DOMAIN: https://louse-model-lioness.ngrok-free.app
     volumes:
       - ./LocalServer/entrypoint_glitchti.sh:/entrypoint.sh
       - uploads:/code/uploads
