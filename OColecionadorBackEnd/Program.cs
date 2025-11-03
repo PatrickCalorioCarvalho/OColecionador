@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using OColecionadorBackEnd.Data;
 using OColecionadorBackEnd.Service;
+using OColecionadorBackEnd.Middlewares;
+using System.Reflection.PortableExecutable;
 
 namespace OColecionadorBackEnd
 {
@@ -42,9 +44,9 @@ namespace OColecionadorBackEnd
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
             app.UseAuthorization();
 
+            app.UseMiddleware<OAuthMiddleware>();
 
             app.MapControllers();
 

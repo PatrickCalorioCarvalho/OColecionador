@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { TextInput, Button, Image, ScrollView, Alert, View, FlatList, Text } from "react-native";
+import { TextInput, Button, Image, ScrollView, Alert, View, FlatList, Text,StyleSheet  } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from "expo-image-picker";
-import { createItem } from "../models/Items";
+import { createItem } from "../../models/Items";
 import { Categoria, getCategorias } from "@/models/Categorias";
 
 export default function NewItem() {
@@ -96,62 +96,107 @@ export default function NewItem() {
     Alert.alert("Sucesso", "Item criado com sucesso!");
   };
 
-  return (
-    <ScrollView contentContainerStyle={{ padding: 20 }}>
-      <Text style={{ fontSize: 16, marginBottom: 5 }}>Nome do item</Text>
-      <TextInput
-        placeholder="Digite o nome"
-        value={nome}
-        onChangeText={setnome}
-        style={{
-          borderWidth: 1,
-          borderColor: '#ccc',
-          borderRadius: 8,
-          padding: 10,
-          marginBottom: 20,
-        }}
-      />
-      <Text style={{ fontSize: 16, marginBottom: 5 }}>Categoria</Text>
-      <View
-        style={{
-          borderWidth: 1,
-          borderColor: '#ccc',
-          borderRadius: 8,
-          marginBottom: 20,
-        }}
-      >
-        <Picker
-          selectedValue={categoriaId}
-          onValueChange={(itemValue) => setCategoriaId(itemValue)}
-        >
-          <Picker.Item label="Selecione uma categoria" value={null} />
-          {categorias.map((c) => (
-            <Picker.Item key={c.id} label={c.descricao} value={c.id} />
-          ))}
-        </Picker>
-      </View>
-      <View style={{ marginBottom: 20 }}>
-        <Button title="Selecionar Foto" onPress={pickImage} />
-      </View>
-      {photos.length > 0 && (
-        <View style={{ marginBottom: 20 }}>
-          <Text style={{ fontSize: 16, marginBottom: 10 }}>Fotos selecionadas</Text>
-          <FlatList
-            data={photos}
-            horizontal
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => (
-              <Image
-                source={{ uri: item }}
-                style={{ width: 100, height: 100, marginRight: 10, borderRadius: 8 }}
-              />
-            )}
-          />
+return (
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Text style={styles.label}>Nome do item</Text>
+        <TextInput
+          placeholder="Digite o nome"
+          placeholderTextColor="#aaa"
+          value={nome}
+          onChangeText={setnome}
+          style={styles.input}
+        />
+
+        <Text style={styles.label}>Categoria</Text>
+        <View style={styles.pickerWrapper}>
+          <Picker
+            selectedValue={categoriaId}
+            onValueChange={(itemValue) => setCategoriaId(itemValue)}
+            dropdownIconColor="#fff"
+            style={styles.picker}
+          >
+            <Picker.Item label="Selecione uma categoria" value={null} />
+            {categorias.map((c) => (
+              <Picker.Item key={c.id} label={c.descricao} value={c.id} />
+            ))}
+          </Picker>
         </View>
-      )}
-      <View style={{ marginBottom: 40 }}>
-        <Button title="Salvar Item" onPress={saveItem} />
+
+        <View style={styles.buttonWrapper}>
+          <Button title="Selecionar Foto" onPress={pickImage} />
+        </View>
+
+        {photos.length > 0 && (
+          <View style={styles.photosSection}>
+            <Text style={styles.label}>Fotos selecionadas</Text>
+            <FlatList
+              data={photos}
+              horizontal
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => (
+                <Image source={{ uri: item }} style={styles.photo} />
+              )}
+            />
+          </View>
+        )}
+      </ScrollView>
+
+      <View style={styles.saveButton}>
+        <Button title="Salvar Item" onPress={saveItem} color="#2ecc71" />
       </View>
-    </ScrollView>
+    </View>
   );
 }
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#1E2A38',
+  },
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 100, // espaço extra para o botão fixo
+  },
+  label: {
+    fontSize: 16,
+    color: '#fff',
+    marginBottom: 5,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#444',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 20,
+    color: '#fff',
+    backgroundColor: '#2c3e50',
+  },
+  pickerWrapper: {
+    borderWidth: 1,
+    borderColor: '#444',
+    borderRadius: 8,
+    marginBottom: 20,
+    backgroundColor: '#2c3e50',
+  },
+  picker: {
+    color: '#fff',
+  },
+  buttonWrapper: {
+    marginBottom: 20,
+  },
+  photosSection: {
+    marginBottom: 20,
+  },
+  photo: {
+    width: 100,
+    height: 100,
+    marginRight: 10,
+    borderRadius: 8,
+  },
+  saveButton: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+  },
+});
