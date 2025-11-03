@@ -1,0 +1,47 @@
+.dashboard-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  background-color: #1e1e2f;
+  padding: 10px 20px;
+  color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.dashboard-title {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+  color: #e0f7fa;
+}
+
+.header-logout {
+  background-color: #8b0000; /* vinho escuro */
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.header-logout:hover {
+  background-color: #a00000; /* tom mais claro ao passar o mouse */
+}
+

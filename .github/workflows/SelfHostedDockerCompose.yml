@@ -17,6 +17,10 @@ jobs:
           OC_AUTH_EMAIL: ${{ secrets.OC_AUTH_EMAIL }}
           OC_AUTH_PASSWORD: ${{ secrets.OC_AUTH_PASSWORD }}
           OC_NGROCK_TOKEN: ${{ secrets.OC_NGROCK_TOKEN }}
+          OC_GITHUB_CLIENT_ID: ${{ secrets.OC_GITHUB_CLIENT_ID }}
+          OC_GITHUB_CLIENT_SECRET: ${{ secrets.OC_GITHUB_CLIENT_SECRET }}
+          OC_GOOGLE_CLIENT_ID: ${{ secrets.OC_GOOGLE_CLIENT_ID }}
+          OC_GOOGLE_CLIENT_SECRET: ${{ secrets.OC_GOOGLE_CLIENT_SECRET }}
         run: |
           docker compose up -d --build --force-recreate
           docker compose --profile manual up --no-start --build --force-recreate ocolecionadortraining

@@ -84,8 +84,30 @@ services:
         condition: service_started
     environment:
       ASPNETCORE_URLS: "http://+:5000"
+      GITHUB_CLIENT_ID: ${OC_GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${OC_GITHUB_CLIENT_SECRET}
+      GOOGLE_CLIENT_ID: ${OC_GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${OC_GOOGLE_CLIENT_SECRET}
     ports:
       - "5000:5000"
+    restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+  
+  ocolecionadorfrontend:
+    build:
+      context: ./OColecionadorFrontEnd/
+      dockerfile: Dockerfile
+      args:
+        GITHUB_CLIENT_ID: ${OC_GITHUB_CLIENT_ID}
+        GOOGLE_CLIENT_ID: ${OC_GOOGLE_CLIENT_ID}
+    container_name: OColecionadorFrontEnd
+    depends_on:
+      ocolecionadorbackend:
+        condition: service_started
+    ports:
+      - "5002:5002"
     restart: always
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -178,6 +200,8 @@ services:
       GLITCHTIP_ADMIN_EMAIL: ${OC_AUTH_EMAIL}
       GLITCHTIP_ADMIN_PASSWORD: ${OC_AUTH_PASSWORD}
       GLITCHTIP_ADMIN_USERNAME: ${OC_AUTH_USER}
+      CSRF_TRUSTED_ORIGINS: https://louse-model-lioness.ngrok-free.app
+      GLITCHTIP_DOMAIN: https://louse-model-lioness.ngrok-free.app
     volumes:
       - ./LocalServer/entrypoint_glitchti.sh:/entrypoint.sh
       - uploads:/code/uploads
