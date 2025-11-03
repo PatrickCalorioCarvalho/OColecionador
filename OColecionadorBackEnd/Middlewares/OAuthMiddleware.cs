@@ -40,59 +40,58 @@ namespace OColecionadorBackEnd.Middlewares
 
             var tipo = parts[0];
             var token = parts[1];
-            Console.WriteLine($"Tipo de token: {tipo}");
-            Console.WriteLine($"Token: {token}");
-            dynamic userData = null;
+            string? clientId = null;
 
             if (tipo == "google")
-                userData = await GetGoogleUser(token);
+                clientId = await GetGoogleUserId(token);
             else if (tipo == "github")
-                userData = await GetGitHubUser(token);
-            else
+                clientId = await GetGitHubUserId(token);
+
+            if (clientId == null)
             {
                 context.Response.StatusCode = 401;
-                await context.Response.WriteAsync("Tipo de token desconhecido");
-                return;
-            }
-            Console.WriteLine($"Dados do usuário: {userData}");
-            if (userData == null)
-            {
-                context.Response.StatusCode = 401;
-                await context.Response.WriteAsync("Token inválido");
+                await context.Response.WriteAsync("Token inválido ou falha ao gerar ID");
                 return;
             }
 
-            // ✅ Gerar ID do usuário
-            string username = userData.name ?? userData.login ?? "unknown";
-            string email = userData.email ?? "noemail";
-            string clientId = $"{username}_{email}_{tipo}";
-            Console.WriteLine($"Client ID gerado: {clientId}");
-
-            // ✅ Adicionar no header da requisição
             context.Request.Headers["X-Client"] = clientId;
-
             await _next(context);
         }
 
-        public async Task<dynamic> GetGoogleUser(string token)
+
+        public async Task<string?> GetGoogleUserId(string token)
         {
             var client = new HttpClient();
             var response = await client.GetAsync($"https://www.googleapis.com/oauth2/v3/tokeninfo?id_token={token}");
             if (!response.IsSuccessStatusCode) return null;
+
             var json = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<JsonElement>(json);
+            var data = JsonSerializer.Deserialize<JsonElement>(json);
+
+            string email = data.TryGetProperty("email", out var emailProp) ? emailProp.GetString() ?? "noemail" : "noemail";
+            string name = data.TryGetProperty("name", out var nameProp) ? nameProp.GetString() ?? "unknown" : "unknown";
+
+            return $"{name}_{email}_google";
         }
 
-        public async Task<dynamic> GetGitHubUser(string token)
+        public async Task<string?> GetGitHubUserId(string token)
         {
             var client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             client.DefaultRequestHeaders.UserAgent.ParseAdd("YourAppName");
+
             var response = await client.GetAsync("https://api.github.com/user");
             if (!response.IsSuccessStatusCode) return null;
+
             var json = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<JsonElement>(json);
+            var data = JsonSerializer.Deserialize<JsonElement>(json);
+
+            string login = data.TryGetProperty("login", out var loginProp) ? loginProp.GetString() ?? "unknown" : "unknown";
+            string email = data.TryGetProperty("email", out var emailProp) ? emailProp.GetString() ?? "noemail" : "noemail";
+
+            return $"{login}_{email}_github";
         }
+
 
     }
 }
