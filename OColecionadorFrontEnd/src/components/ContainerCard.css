@@ -1,20 +1,27 @@
 .table-card {
-  width: 25%;
-  background: #1e2a38;
-  color: #fff;
+  width: 100%;
+  max-width: 400px;
+  height: 500px;
+  background: #f9f9f9; /* fundo mais claro */
+  color: #333;
   padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.2);
-  overflow-x: auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .table-card h2 {
   margin-bottom: 12px;
+  font-size: 1.2rem;
+  color: #222;
 }
 
 .table-card table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 0.95rem;
 }
 
 .table-card th,
@@ -24,30 +31,33 @@
 }
 
 .table-card th {
-  background-color: #263445;
+  background-color: #e0e0e0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .row-running {
-  background-color: #2e7d32;
+  background-color: #e8f5e9; /* verde claro */
 }
 
 .row-exited {
-  background-color: #c62828;
+  background-color: #ffebee; /* vermelho claro */
 }
 
 .row-created {
-  background-color: #f9a825;
+  background-color: #fff8e1; /* amarelo claro */
 }
 
 .table-card button {
   background: none;
   border: none;
-  color: #fff;
+  color: #333;
   margin-right: 6px;
   font-size: 1rem;
   cursor: pointer;
 }
 
 .table-card button:hover {
-  color: #90caf9;
+  color: #1976d2;
 }
