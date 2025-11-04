@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { FlatList, View, Text, Image, RefreshControl, StyleSheet } from 'react-native';
 import { getItems, Item } from "../../models/Items";
 
-export default function Index() {
+export default function Hone() {
   const [items, setItems] = useState<Item[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
