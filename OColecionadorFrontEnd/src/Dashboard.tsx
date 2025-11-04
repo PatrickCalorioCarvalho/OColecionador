@@ -83,7 +83,6 @@ return (
           </div>
         )}
       </header>
-      <h1 className="dashboard-title">Containers Docker</h1>
       <div className="dashboard-card">
         <ContainerCard containers={containers} onAction={handleAction} /> 
       </div>
