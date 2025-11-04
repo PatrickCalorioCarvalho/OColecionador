@@ -1,9 +1,9 @@
 .table-card {
-  width: 80vw; 
+  width: 100vw; 
   height: 80vh;
   background: #f9f9f9;
   color: #333;
-  padding: 30px;
+  padding: 16px;
   border-radius: 12px 0 0 12px; 
   border-bottom: 4px solid #ccc;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
