@@ -15,7 +15,8 @@ namespace OColecionadorBackEnd
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddDbContext<OColecionadorBackEndContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("OColecionadorBackEndContext") ?? throw new InvalidOperationException("Connection string 'OColecionadorBackEndContext' not found.")));
-
+            
+            builder.Services.AddHttpClient();
             builder.Services.AddScoped<MinioService>();
             builder.Services.AddScoped<RabbitService>();
             // Add services to the container.

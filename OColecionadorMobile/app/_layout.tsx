@@ -24,7 +24,7 @@ export default function RootLayout() {
   }
 
   const isAuthRoute = pathname === '/login';
-  const isTabsRoute = pathname === '/home' || pathname === '/account' || pathname === '/newItem';
+  const isTabsRoute = pathname === '/home' || pathname === '/account' || pathname === '/classify' || pathname === '/newItem';
 
   if (!token && !isAuthRoute) {
     return <Redirect href="/login" />;
