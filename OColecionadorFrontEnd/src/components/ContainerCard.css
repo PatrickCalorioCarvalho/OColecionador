@@ -1,0 +1,64 @@
+.table-card {
+  width: 100vw; 
+  height: 80vh;
+  background: #f9f9f9;
+  color: #333;
+  padding: 16px;
+  border-radius: 12px 12px 12px 12px; 
+  border-bottom: 4px solid #ccc;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.table-card h2 {
+  margin-bottom: 12px;
+  font-size: 1.2rem;
+  color: #222;
+}
+
+.table-card table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.table-card th,
+.table-card td {
+  padding: 8px;
+  text-align: left;
+}
+
+.table-card th {
+  background-color: #e0e0e0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.row-running {
+  background-color: #e8f5e9; /* verde claro */
+}
+
+.row-exited {
+  background-color: #ffebee; /* vermelho claro */
+}
+
+.row-created {
+  background-color: #fff8e1; /* amarelo claro */
+}
+
+.table-card button {
+  background: none;
+  border: none;
+  color: #333;
+  margin-right: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.table-card button:hover {
+  color: #1976d2;
+}

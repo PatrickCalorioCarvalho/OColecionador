@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { Container, getContainers, restartContainer, startContainer, stopContainer } from './models/Docker';
+import { ContainerCard } from './components/ContainerCard';
 import './Dashboard.css';
 
 export default function Dashboard() {
   const rawToken = localStorage.getItem('token');
   const [user, setUser] = useState<{ name: string; picture: string } | null>(null);
+  const [containers, setContainers] = useState<Container[]>([]);
 
   useEffect(() => {
     if (!rawToken) return;
@@ -36,8 +39,18 @@ export default function Dashboard() {
         console.error('Erro ao buscar perfil:', err);
       }
     };
+    const fetchContainers = async () => {
+      try {
+        const res = await getContainers();
+        console.log('Containers fetched:', res.data);
+        setContainers(res.data);
+      } catch (err) {
+        console.error('Erro ao buscar containers:', err);
+      }
+    };
 
     fetchUser();
+    fetchContainers();
   }, [rawToken]);
 
   const handleLogout = () => {
@@ -45,24 +58,33 @@ export default function Dashboard() {
     window.location.href = '/login';
   };
 
+  const handleAction = async (action: string, id: string) => {
+    try {
+      if (action === 'start') await startContainer(id);
+      if (action === 'stop') await stopContainer(id);
+      if (action === 'restart') await restartContainer(id);
+      const res = await getContainers();
+      setContainers(res.data);
+    } catch (err) {
+      console.error('Erro ao executar ação:', err);
+    }
+  };
+
   if (!rawToken) return <p>Acesso negado.</p>;
 
-  return (
+return (
     <div className="dashboard-container">
       <header className="dashboard-header">
         {user && (
           <div className="header-user">
             <img src={user.picture} alt="Avatar" className="header-avatar" />
             <span className="header-name">{user.name}</span>
-            <button className="header-logout" onClick={handleLogout} title="Sair">
-              ➔
-            </button>
+            <button className="header-logout" onClick={handleLogout} title="Sair">➔</button>
           </div>
         )}
       </header>
-
       <div className="dashboard-card">
-        <h1 className="dashboard-title">Dashboard</h1>
+        <ContainerCard containers={containers} onAction={handleAction} /> 
       </div>
     </div>
   );

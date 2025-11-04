@@ -45,3 +45,9 @@
   background-color: #a00000; /* tom mais claro ao passar o mouse */
 }
 
+.dashboard-card {
+  display: flex;
+  gap: 24px;
+  padding: 12px;
+}
+

@@ -19,6 +19,7 @@ namespace OColecionadorBackEnd
             builder.Services.AddHttpClient();
             builder.Services.AddScoped<MinioService>();
             builder.Services.AddScoped<RabbitService>();
+            builder.Services.AddScoped<DockerService>();
             // Add services to the container.
 
             builder.Services.AddControllers();
