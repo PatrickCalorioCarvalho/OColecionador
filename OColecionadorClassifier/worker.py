@@ -94,7 +94,7 @@ def main():
         D, I = index.search(query_embedding, k=3)
         semelhantes = [
             {
-                "item": f"{BUCKET_ORIGINAIS}/{labels[i]}",
+                "item": f"{BUCKET_ORIGINAIS}//{labels[i]}",
                 "distancia": float(D[0][j])
             }
             for j, i in enumerate(I[0])
