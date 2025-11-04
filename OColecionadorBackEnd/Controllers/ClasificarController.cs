@@ -72,15 +72,17 @@ namespace OColecionadorBackEnd.Controllers
                         fotosComUrls.Add(url);
                     }
                 }
-                items.Add(new
+                if (!items.Any(i => ((dynamic)i).Id == item.Id))
                 {
-                    item.Id,
-                    item.Nome,
-                    item.CategoriaId,
-                    Distancia = s.Distancia,
-                    Fotos = fotosComUrls
-                    
-                });
+                    items.Add(new
+                    {
+                        item.Id,
+                        item.Nome,
+                        item.CategoriaId,
+                        s.Distancia,
+                        Fotos = fotosComUrls
+                    });
+                }
             }
 
             var result = new
