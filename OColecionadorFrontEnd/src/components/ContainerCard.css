@@ -1,11 +1,11 @@
 .table-card {
-  width: 100%;
-  max-width: 600px;
-  height: 600px;
-  background: #f9f9f9; /* fundo mais claro */
+  width: 50vw; 
+  height: 100vh;
+  background: #f9f9f9;
   color: #333;
   padding: 16px;
-  border-radius: 12px;
+  border-radius: 12px 12px 0 0; 
+  border-bottom: 4px solid #ccc;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
   display: flex;
