@@ -1,21 +1,53 @@
-.container-card {
+.table-card {
+  width: 25%;
   background: #1e2a38;
   color: #fff;
   padding: 16px;
   border-radius: 8px;
-  margin-bottom: 12px;
   box-shadow: 0 0 8px rgba(0,0,0,0.2);
+  overflow-x: auto;
 }
 
-.actions button {
+.table-card h2 {
+  margin-bottom: 12px;
+}
+
+.table-card table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-card th,
+.table-card td {
+  padding: 8px;
+  text-align: left;
+}
+
+.table-card th {
+  background-color: #263445;
+}
+
+.row-running {
+  background-color: #2e7d32;
+}
+
+.row-exited {
+  background-color: #c62828;
+}
+
+.row-created {
+  background-color: #f9a825;
+}
+
+.table-card button {
   background: none;
   border: none;
   color: #fff;
-  margin-right: 8px;
-  font-size: 1.2rem;
+  margin-right: 6px;
+  font-size: 1rem;
   cursor: pointer;
 }
 
-.actions button:hover {
+.table-card button:hover {
   color: #90caf9;
 }

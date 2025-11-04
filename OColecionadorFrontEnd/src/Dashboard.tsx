@@ -86,9 +86,7 @@ return (
 
       <div className="dashboard-card">
         <h1 className="dashboard-title">Containers Docker</h1>
-          {containers.map((c) => (
-            <ContainerCard key={c.id} container={c} onAction={handleAction} />
-          ))}
+        <ContainerCard containers={containers} onAction={handleAction} /> 
       </div>
     </div>
   );
