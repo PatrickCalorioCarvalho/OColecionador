@@ -33,16 +33,16 @@ export function ContainerCard({ containers, onAction }: Props) {
         </thead>
         <tbody>
           {containers.map((c) => (
-            <tr key={c.id} className={getRowClass(c.status)}>
+            <tr key={c.id} className={getRowClass(c.state)}>
               <td>{c.names?.[0]?.replace('/', '') || 'Sem nome'}</td>
-              <td>{c.status}</td>
+              <td>{c.state}</td>
               <td>
-                {c.status !== 'running' && (
+                {c.state !== 'running' && (
                   <button onClick={() => onAction('start',c.id)} title="Iniciar">
                     <Play size={18} />
                   </button>
                 )}
-                {c.status === 'running' && (
+                {c.state === 'running' && (
                   <button onClick={() => onAction('stop', c.id)} title="Parar">
                     <StopCircle size={18} />
                   </button>
