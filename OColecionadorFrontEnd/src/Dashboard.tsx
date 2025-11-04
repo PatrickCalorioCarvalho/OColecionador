@@ -83,9 +83,9 @@ return (
           </div>
         )}
       </header>
-
-      <div style={{ display: 'flex', gap: '24px' }}>
-        <ContainerCard containers={containers} onAction={handleAction} />
+      <h1 className="dashboard-title">Containers Docker</h1>
+      <div className="dashboard-card">
+        <ContainerCard containers={containers} onAction={handleAction} /> 
       </div>
     </div>
   );
