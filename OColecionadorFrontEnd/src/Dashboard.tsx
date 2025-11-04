@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Container, getContainers, restartContainer, startContainer, stopContainer } from './models/Docker';
+import { ContainerCard } from './components/ContainerCard';
 import './Dashboard.css';
 
 export default function Dashboard() {
@@ -85,17 +86,9 @@ return (
 
       <div className="dashboard-card">
         <h1 className="dashboard-title">Containers Docker</h1>
-        {containers.map((c) => (
-          <div key={c.Id} className="container-card">
-            <h3>{c.Names[0].replace('/', '')}</h3>
-            <p>Status: <span className={c.State === 'running' ? 'status-running' : 'status-stopped'}>{c.State}</span></p>
-            <div className="actions">
-              {c.State !== 'running' && <button onClick={() => handleAction('start', c.Id)}></button>}
-              {c.State === 'running' && <button onClick={() => handleAction('stop', c.Id)}></button>}
-              <button onClick={() => handleAction('restart', c.Id)}></button>
-            </div>
-          </div>
-        ))}
+          {containers.map((c) => (
+            <ContainerCard key={c.id} container={c} onAction={handleAction} />
+          ))}
       </div>
     </div>
   );

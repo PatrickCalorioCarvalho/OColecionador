@@ -2,10 +2,12 @@ import api from "../services/API";
 
 
 export interface Container {
-  Id: string;
-  Names: string[];
-  State: string;
-  Status: string;
+  id: string;
+  names: string[];
+  image: string;
+  command: string;
+  state: string;
+  status: string;
 }
 
 export const getContainers = () => api.get('/Docker');

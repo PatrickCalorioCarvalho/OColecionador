@@ -1,0 +1,21 @@
+.container-card {
+  background: #1e2a38;
+  color: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+}
+
+.actions button {
+  background: none;
+  border: none;
+  color: #fff;
+  margin-right: 8px;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.actions button:hover {
+  color: #90caf9;
+}
