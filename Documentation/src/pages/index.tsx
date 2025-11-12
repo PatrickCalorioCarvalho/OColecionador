@@ -3,6 +3,7 @@ import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Head from '@docusaurus/Head';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 export default function Home() {
   const { siteConfig } = useDocusaurusContext();
@@ -17,7 +18,7 @@ export default function Home() {
 
         <div style={{ marginTop: '3rem' }}>
           <img
-            src="/img/icon.png"
+            src={useBaseUrl('img/icon.png')}
             alt="Ícone O Colecionador"
             style={{ width: '300px' }}
           />
