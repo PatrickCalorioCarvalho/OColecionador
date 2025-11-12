@@ -9,6 +9,7 @@ const config: Config = {
   favicon: 'img/favicon.ico',
   organizationName: 'PatrickCalorioCarvalho',
   projectName: 'OColecionador',
+  deploymentBranch: 'gh-pages',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
 
