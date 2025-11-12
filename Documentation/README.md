@@ -46,6 +46,6 @@ cd build
 git init
 git checkout -b gh-pages
 git add .
-git commit -m "Deploy site"
+git commit -m "Deploy"
 git remote add origin https://github.com/PatrickCalorioCarvalho/OColecionador.git
 git push -f origin gh-pages
