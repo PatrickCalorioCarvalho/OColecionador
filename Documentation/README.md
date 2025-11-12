@@ -39,3 +39,13 @@ GIT_USER=<Your GitHub username> yarn deploy
 ```
 
 If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+
+
+npm run build
+cd build
+git init
+git checkout -b gh-pages
+git add .
+git commit -m "Deploy site"
+git remote add origin https://github.com/PatrickCalorioCarvalho/OColecionador.git
+git push -f origin gh-pages
