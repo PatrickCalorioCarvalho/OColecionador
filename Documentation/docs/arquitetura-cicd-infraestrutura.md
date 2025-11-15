@@ -145,11 +145,3 @@ docker compose down
 # Parar e remover tudo (incl. volumes)
 docker compose down -v
 ```
-
----
-
-## 📞 Contato / Suporte
-
-- 📖 [Documentação Completa](.)
-- 🐙 [GitHub Issues](https://github.com/PatrickCalorioCarvalho/OColecionador/issues)
-- 📧 Email: patrick@example.com
