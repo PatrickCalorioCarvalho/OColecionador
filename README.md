@@ -1,4 +1,4 @@
-# 🧠 OColecionador  
+# OColecionador  
 ![Logo do OColecionador](logo.png)
 
 Sistema completo para **coleta, classificação e gerenciamento de imagens de colecionáveis**, integrando **mobile app, backend em .NET, e serviços de IA em Python com TensorFlow**.  
