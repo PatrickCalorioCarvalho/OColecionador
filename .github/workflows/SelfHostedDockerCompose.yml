@@ -63,9 +63,9 @@ jobs:
         name: pylint-report-${{ matrix.project }}
         path: ./${{ matrix.project }}/pylint-report.json
         retention-days: 30
-        
+
   test-python:
-    needs: code-quality
+    needs: code-quality-python
     runs-on: ubuntu-latest
 
     strategy:
