@@ -36,11 +36,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     
-    - name: Black - Verificar formatação
-      working-directory: ./${{ matrix.project }}
-      run: |
-        black --check . || true
-    
     - name: isort - Verificar imports
       working-directory: ./${{ matrix.project }}
       run: |
