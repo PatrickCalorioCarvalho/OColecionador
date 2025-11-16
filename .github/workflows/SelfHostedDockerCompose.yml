@@ -6,8 +6,68 @@ on:
 
 jobs:
 
-  test-python:
+  code-quality-python:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9']
+        project: ['OColecionadorAugmentations', 'OColecionadorClassifier', 'OColecionadorTraining']
+    
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ matrix.project }}-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ matrix.project }}-
+    
+    - name: Instalar dependências para ${{ matrix.project }}
+      working-directory: ./${{ matrix.project }}
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Black - Verificar formatação
+      working-directory: ./${{ matrix.project }}
+      run: |
+        black --check . || true
+    
+    - name: isort - Verificar imports
+      working-directory: ./${{ matrix.project }}
+      run: |
+        isort --check-only . || true
+    
+    - name: Flake8 - Verificar estilo
+      working-directory: ./${{ matrix.project }}
+      run: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+    
+    - name: Pylint - Análise estática
+      working-directory: ./${{ matrix.project }}
+      run: |
+        pylint **/*.py --exit-zero --output-format=parseable
+    
+    - name: Upload Pylint Report
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: pylint-report-${{ matrix.project }}
+        path: ./${{ matrix.project }}/pylint-report.json
+        retention-days: 30
+        
+  test-python:
+    needs: code-quality
+    runs-on: ubuntu-latest
+
     strategy:
       matrix:
         python-version: ['3.9']

@@ -1,0 +1,7 @@
+[MASTER]
+max-line-length=120
+disable=C0111,R0903,W0212
+
+[DESIGN]
+max-attributes=10
+max-arguments=6
