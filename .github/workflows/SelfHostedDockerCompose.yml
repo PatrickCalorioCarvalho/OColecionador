@@ -49,14 +49,16 @@ jobs:
     - name: Pylint - Análise estática
       working-directory: ./${{ matrix.project }}
       run: |
-        pylint **/*.py --exit-zero --output-format=parseable
+        mkdir -p reports
+        pylint **/*.py --exit-zero --output-format=json > reports/pylint-report.json || true
+        cat reports/pylint-report.json
     
     - name: Upload Pylint Report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       if: always()
       with:
         name: pylint-report-${{ matrix.project }}
-        path: ./${{ matrix.project }}/pylint-report.json
+        path: ./${{ matrix.project }}/reports/pylint-report.json
         retention-days: 30
 
   test-python:
