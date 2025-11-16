@@ -5,3 +5,6 @@ psycopg2-binary==2.9.8
 pillow==8.4.0
 minio==7.1.0
 sentry-sdk==1.40.4
+pytest==7.4.3
+pytest-cov==4.1.0
+pytest-mock==3.12.0
