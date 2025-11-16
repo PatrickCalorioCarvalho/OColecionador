@@ -39,7 +39,13 @@ jobs:
 
       - name: Install dependencies
         working-directory: OColecionadorMobile
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ] || [ -f yarn.lock ]; then
+            npm ci
+          else
+            echo "No lockfile found — running npm install and generating package-lock.json"
+            npm install
+          fi
 
       - name: Lint (ESLint)
         working-directory: OColecionadorMobile
