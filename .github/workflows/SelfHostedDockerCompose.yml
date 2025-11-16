@@ -104,8 +104,51 @@ jobs:
         name: coverage-${{ matrix.project }}
         path: ./${{ matrix.project }}/coverage.xml
 
+  check-ocolecionadorfrontEnd:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['20']
+        project: ['OColecionadorFrontEnd']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install deps
+        working-directory: ./${{ matrix.project }}
+        run: npm ci
+
+      - name: Prettier check (optional)
+        working-directory: ./${{ matrix.project }}
+        run: npm run format:check || true
+
+      - name: ESLint
+        working-directory: ./${{ matrix.project }}
+        run: npm run lint || true
+
+      - name: TypeScript check
+        working-directory: ./${{ matrix.project }}
+        run: npm run typecheck || true
+
+      - name: Run tests (Jest) with coverage
+        working-directory: ./${{ matrix.project }}
+        run: npm run test:ci || npm run test -- --coverage --watchAll=false || true
+
+      - name: Upload JS coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.project }}
+          path: ./${{ matrix.project }}/coverage
+
   docker-compose:
-    needs: test-python
+    needs: [test-python,check-ocolecionadorfrontEnd]
     runs-on: self-hosted 
     
     steps:

@@ -41,6 +41,28 @@ jobs:
         working-directory: OColecionadorMobile
         run: npm ci
 
+      - name: Lint (ESLint)
+        working-directory: OColecionadorMobile
+        run: |
+          npm run lint || true
+
+      - name: TypeScript check
+        working-directory: OColecionadorMobile
+        run: |
+          npm run typecheck || true
+
+      - name: Run Jest tests with coverage
+        working-directory: OColecionadorMobile
+        run: |
+          npm run test:ci || npm test -- --coverage --watchAll=false || true
+
+      - name: Upload JS coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-OColecionadorMobile
+          path: OColecionadorMobile/coverage
+
       - name: Build APK
         working-directory: OColecionadorMobile
         run: |
