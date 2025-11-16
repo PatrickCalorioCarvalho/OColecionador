@@ -40,11 +40,18 @@ jobs:
       - name: Install dependencies
         working-directory: OColecionadorMobile
         run: |
+          set -e
           if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ] || [ -f yarn.lock ]; then
-            npm ci
+            echo "Lockfile found — trying 'npm ci' first"
+            if npm ci; then
+              echo "npm ci succeeded"
+            else
+              echo "npm ci failed — falling back to 'npm install --legacy-peer-deps'"
+              npm install --legacy-peer-deps
+            fi
           else
-            echo "No lockfile found — running npm install and generating package-lock.json"
-            npm install
+            echo "No lockfile found — running npm install"
+            npm install --legacy-peer-deps
           fi
 
       - name: Lint (ESLint)
