@@ -119,10 +119,17 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
+          cache-dependency-path: ${{ matrix.project }}/package-lock.json
 
-      - name: Install deps
+      - name: Install deps (frontend)
         working-directory: ./${{ matrix.project }}
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ] || [ -f yarn.lock ]; then
+            npm ci
+          else
+            echo "No lockfile found — running npm install and generating package-lock.json"
+            npm install
+          fi
 
       - name: Prettier check (optional)
         working-directory: ./${{ matrix.project }}
