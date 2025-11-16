@@ -7,3 +7,9 @@ numpy==1.19.5
 pillow==8.4.0
 sentry-sdk==1.40.4
 faiss-cpu==1.7.2
+pytest==7.0.1
+pytest-cov==4.0.0
+pytest-mock==3.6.1
+pylint==2.8.0
+flake8==4.0.1
+isort==5.10.0
