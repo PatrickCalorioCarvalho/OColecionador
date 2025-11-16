@@ -49,7 +49,9 @@ jobs:
         fail_ci_if_error: false
 
   docker-compose:
+    needs: test-python
     runs-on: self-hosted 
+    
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4

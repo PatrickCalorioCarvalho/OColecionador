@@ -9,4 +9,4 @@ sentry-sdk==1.40.4
 faiss-cpu==1.7.2
 pytest==7.0.1
 pytest-cov==4.0.0
-pytest-mock==3.10.0
+pytest-mock==3.6.1
