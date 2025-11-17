@@ -8,10 +8,11 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "eslint 'app/**/*.{ts,tsx,js,jsx}' 'src/**/*.{ts,tsx,js,jsx}'",
-    "format": "prettier --write 'app/**/*.{ts,tsx,js,jsx,json,css,md}' 'src/**/*.{ts,tsx,js,jsx,json,css,md}'",
-    "format:check": "prettier --check 'app/**/*.{ts,tsx,js,jsx,json,css,md}' 'src/**/*.{ts,tsx,js,jsx,json,css,md}'",
+    "lint": "eslint \"app/**/*.{ts,tsx,js,jsx}\"",
+    "format": "prettier --write \"app/**/*.{ts,tsx,js,jsx,json,css,md}\" \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format:check": "prettier --check \"app/**/*.{ts,tsx,js,jsx,json,css,md}\" \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "typecheck": "tsc --noEmit",
+    "test": "jest",
     "test:ci": "jest --coverage --runInBand"
   },
   "dependencies": {
@@ -49,6 +50,7 @@
   },
   "devDependencies": {
     "@testing-library/react-native": "^13.3.3",
+    "@testing-library/jest-native": "^5.0.0",
     "@types/jest": "^30.0.0",
     "@types/react": "~19.1.0",
     "@typescript-eslint/eslint-plugin": "^8.46.4",
@@ -58,6 +60,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
+    "jest": "29.7.0",
     "jest-expo": "^54.0.13",
     "prettier": "^3.6.2",
     "typescript": "~5.9.2"
