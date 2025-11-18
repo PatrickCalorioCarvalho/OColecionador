@@ -41,7 +41,7 @@ namespace OColecionadorBackEnd.Controllers
             {
                 var fotosComUrls = new List<string>();
 
-                if(!item.Fotos.IsNullOrEmpty())
+                if (!item.Fotos.IsNullOrEmpty())
                 {
                     foreach (var foto in item.Fotos)
                     {
@@ -163,7 +163,7 @@ namespace OColecionadorBackEnd.Controllers
             _context.Item.Add(item);
             await _context.SaveChangesAsync();
 
-            foreach(Foto f in item.Fotos )
+            foreach (Foto f in item.Fotos)
             {
                 var message = new FotoMessage
                 {
@@ -173,7 +173,7 @@ namespace OColecionadorBackEnd.Controllers
                 };
                 _rabbit.PublishMessage<FotoMessage>("ImageAugmentations", message);
             }
-            
+
 
             return Ok(new
             {

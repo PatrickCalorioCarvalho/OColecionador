@@ -3,10 +3,20 @@ name: Self Hosted Docker Compose
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+    paths:
+      - 'LocalServer/**'
+      - 'OColecionadorAugmentations/**'
+      - 'OColecionadorBackEnd/**'
+      - 'OColecionadorClassifier/**'
+      - 'OColecionadorFrontEnd/**'
+      - 'OColecionadorTraining/**'
+      - 'OColecionadorTraining/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/SelfHostedDockerCompose.yml'
 
 jobs:
 
-  code-quality-python:
+  codequality-python:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -62,9 +72,7 @@ jobs:
         retention-days: 30
 
   test-python:
-    needs: code-quality-python
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         python-version: ['3.9']
@@ -104,8 +112,50 @@ jobs:
         name: coverage-${{ matrix.project }}
         path: ./${{ matrix.project }}/coverage.xml
 
+  validate-ocolecionadorbackend:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore ./OColecionadorBackEnd/OColecionadorBackEnd.csproj
+
+    - name: Lint and format check
+      run: dotnet format ./OColecionadorBackEnd/OColecionadorBackEnd.csproj --report ./ocolecionadorbackend-format-report.json --verify-no-changes
+
+    - name: Upload format report
+      uses: actions/upload-artifact@v4
+      with:
+        name: format-report-OColecionadorBackEnd
+        path: ocolecionadorbackend-format-report.json
+
+    - name: Run unit tests with coverage
+      run: dotnet test ./OColecionadorBackEnd --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger "trx;LogFileName=ocolecionadorbackend-test-results.trx"
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-OColecionadorBackEnd
+        path: OColecionadorBackEnd/TestResults/ocolecionadorbackend-test-results.trx
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report-OColecionadorBackEnd
+        path: OColecionadorBackEnd/TestResults/**/coverage.cobertura.xml
+
+    - name: Build project
+      run: dotnet build ./OColecionadorBackEnd --no-restore
+
   docker-compose:
-    needs: test-python
+    needs: [codequality-python,test-python,validate-ocolecionadorbackend]
     runs-on: self-hosted 
     
     steps:

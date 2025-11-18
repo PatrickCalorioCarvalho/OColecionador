@@ -9,7 +9,7 @@ namespace OColecionadorBackEnd.Data
 {
     public class OColecionadorBackEndContext : DbContext
     {
-        public OColecionadorBackEndContext (DbContextOptions<OColecionadorBackEndContext> options)
+        public OColecionadorBackEndContext(DbContextOptions<OColecionadorBackEndContext> options)
             : base(options)
         {
         }
