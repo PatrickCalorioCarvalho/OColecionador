@@ -3,6 +3,16 @@ name: Self Hosted Docker Compose
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+    paths:
+      - 'LocalServer/**'
+      - 'OColecionadorAugmentations/**'
+      - 'OColecionadorBackEnd/**'
+      - 'OColecionadorClassifier/**'
+      - 'OColecionadorFrontEnd/**'
+      - 'OColecionadorTraining/**'
+      - 'OColecionadorTraining/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/SelfHostedDockerCompose.yml'
 
 jobs:
 
