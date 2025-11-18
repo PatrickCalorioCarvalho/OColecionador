@@ -148,104 +148,7 @@ sequenceDiagram
 
 ---
 
-## 🎯 Fluxo 4: Checkpoint Management e Model Versioning
-
-```mermaid
-graph TD
-    A["🎓 Training Start"] -->|Create| B["Model v3_20251115"]
-    
-    loop Each Epoch
-        B -->|Save if| C["val_accuracy improved"]
-        C -->|Create| D["checkpoint_epoch_5.h5"]
-        D -->|Store| E["models/v3/checkpoints/"]
-    end
-    
-    E -->|Training complete| F["best_model.h5"]
-    
-    F -->|Create| G["model_v3_20251115.h5<br/>Final version"]
-    F -->|Create| H["weights_v3_20251115.h5"]
-    F -->|Create| I["training_log_v3.csv<br/>Metrics per epoch"]
-    
-    G -->|Upload| J["MinIO bucket: models"]
-    H -->|Upload| J
-    I -->|Upload| J
-    
-    J -->|Register| K["database<br/>model_versions table"]
-    
-    style A fill:#e1f5ff
-    style B fill:#f3e5f5
-    style G fill:#e8f5e9
-```
-
----
-
-## 📈 Fluxo 5: Hyperparameter Tuning com Grid Search
-
-```mermaid
-sequenceDiagram
-    participant Manager as 🎯 Hyperparameter Manager
-    participant GridSearch as 🔍 Grid Search
-    participant Training as 🎓 Training
-    participant Results as 📊 Results Tracker
-
-    Manager->>GridSearch: Define parameter grid
-    Note over GridSearch: batch_size: [16, 32, 64]<br/>learning_rate: [0.001, 0.0001]<br/>dropout: [0.3, 0.5, 0.7]
-    
-    GridSearch->>GridSearch: Generate combinations: 3x2x3=18
-    
-    loop For each combination
-        GridSearch->>Training: Start training (combination_i)
-        Training->>Training: 30 epochs
-        Training->>Results: Log final accuracy
-        Results->>Results: Store hyperparams + metrics
-    end
-    
-    Results->>Results: Find best combination
-    Results->>Results: best_params = argmax(accuracy)
-    
-    alt Best accuracy > 0.95
-        Results->>Manager: Use best params for production
-    else Accuracy < 0.95
-        Results->>Manager: Flag for manual review
-    end
-```
-
----
-
-## 🎪 Fluxo 6: Cross-Validation com K-Folds
-
-```mermaid
-graph LR
-    A["📦 Dataset<br/>9000 imagens"] -->|Split| B["Fold 1"]
-    A -->|Split| C["Fold 2"]
-    A -->|Split| D["Fold 3"]
-    A -->|Split| E["Fold 4"]
-    A -->|Split| F["Fold 5"]
-    
-    B -->|Train 4 folds<br/>Val 1 fold| B1["Model 1<br/>Acc: 0.943"]
-    C -->|Train 4 folds<br/>Val 1 fold| C1["Model 2<br/>Acc: 0.941"]
-    D -->|Train 4 folds<br/>Val 1 fold| D1["Model 3<br/>Acc: 0.945"]
-    E -->|Train 4 folds<br/>Val 1 fold| E1["Model 4<br/>Acc: 0.938"]
-    F -->|Train 4 folds<br/>Val 1 fold| F1["Model 5<br/>Acc: 0.947"]
-    
-    B1 -->|Average| G["Mean Acc: 0.9428<br/>Std: 0.0034"]
-    C1 -->|Average| G
-    D1 -->|Average| G
-    E1 -->|Average| G
-    F1 -->|Average| G
-    
-    style A fill:#fff3e0
-    style B1 fill:#e1f5ff
-    style C1 fill:#e1f5ff
-    style D1 fill:#e1f5ff
-    style E1 fill:#e1f5ff
-    style F1 fill:#e1f5ff
-    style G fill:#e8f5e9
-```
-
----
-
-## 🔐 Fluxo 7: Validação de Qualidade do Modelo
+## 🔐 Fluxo 4: Validação de Qualidade do Modelo
 
 ```mermaid
 sequenceDiagram
@@ -288,7 +191,7 @@ sequenceDiagram
 
 ---
 
-## 🚀 Fluxo 8: Escalabilidade com Distributed Training
+## 🚀 Fluxo 5: Escalabilidade com Distributed Training
 
 ```mermaid
 graph TB
@@ -333,7 +236,7 @@ graph TB
 
 ---
 
-## 📊 Fluxo 9: Benchmark - Timeline de Treinamento
+## 📊 Fluxo 6: Benchmark - Timeline de Treinamento
 
 ```mermaid
 graph LR
@@ -352,7 +255,7 @@ graph LR
 
 ---
 
-## 💾 Fluxo 10: Persistência Completa em PostgreSQL
+## 💾 Fluxo 7: Persistência Completa em PostgreSQL
 
 ```mermaid
 sequenceDiagram
