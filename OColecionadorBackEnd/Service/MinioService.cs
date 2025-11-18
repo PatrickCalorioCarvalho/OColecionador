@@ -52,7 +52,7 @@ namespace OColecionadorBackEnd.Service
 
             string url = await _minioClient.PresignedGetObjectAsync(args);
             if (!string.IsNullOrEmpty(_pathExtern))
-                url = url.Replace("http://"+ _endpoint+"/", _pathExtern);
+                url = url.Replace("http://" + _endpoint + "/", _pathExtern);
             return url;
         }
     }
