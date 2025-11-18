@@ -6,7 +6,7 @@ on:
 
 jobs:
 
-  code-quality-python:
+  codequality-python:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -62,9 +62,7 @@ jobs:
         retention-days: 30
 
   test-python:
-    needs: code-quality-python
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         python-version: ['3.9']
@@ -104,8 +102,32 @@ jobs:
         name: coverage-${{ matrix.project }}
         path: ./${{ matrix.project }}/coverage.xml
 
+  validate-ocolecionadorbackend:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore ./OColecionadorBackEnd/OColecionadorBackEnd.csproj
+
+    - name: Lint and format check
+      run: dotnet format ./OColecionadorBackEnd --verify-no-changes
+
+    - name: Run unit tests
+      run: dotnet test ./OColecionadorBackEnd --no-build --verbosity normal
+
+    - name: Build project
+      run: dotnet build ./OColecionadorBackEnd --no-restore
+
   docker-compose:
-    needs: test-python
+    needs: [codequality-python,test-python,validate-ocolecionadorbackend]
     runs-on: self-hosted 
     
     steps:
