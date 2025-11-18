@@ -118,7 +118,7 @@ jobs:
       run: dotnet restore ./OColecionadorBackEnd/OColecionadorBackEnd.csproj
 
     - name: Lint and format check
-      run: dotnet format ./OColecionadorBackEnd --verify-no-changes
+      run: dotnet format ./OColecionadorBackEnd/OColecionadorBackEnd.csproj --verify-no-changes
 
     - name: Run unit tests
       run: dotnet test ./OColecionadorBackEnd --no-build --verbosity normal
