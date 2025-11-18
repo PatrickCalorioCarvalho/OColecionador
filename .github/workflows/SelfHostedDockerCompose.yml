@@ -123,7 +123,7 @@ jobs:
     - name: Upload format report
       uses: actions/upload-artifact@v4
       with:
-        name: ocolecionadorbackend-format-report
+        name: format-report-OColecionadorBackEnd
         path: ocolecionadorbackend-format-report.json
 
     - name: Run unit tests with coverage
@@ -132,13 +132,13 @@ jobs:
     - name: Upload test results
       uses: actions/upload-artifact@v4
       with:
-        name: ocolecionadorbackend-test-results
+        name: test-results-OColecionadorBackEnd
         path: OColecionadorBackEnd/TestResults/ocolecionadorbackend-test-results.trx
 
     - name: Upload coverage report
       uses: actions/upload-artifact@v4
       with:
-        name: ocolecionadorbackend-coverage-report
+        name: coverage-report-OColecionadorBackEnd
         path: OColecionadorBackEnd/TestResults/**/coverage.cobertura.xml
 
     - name: Build project
