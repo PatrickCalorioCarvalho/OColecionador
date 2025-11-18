@@ -118,10 +118,28 @@ jobs:
       run: dotnet restore ./OColecionadorBackEnd/OColecionadorBackEnd.csproj
 
     - name: Lint and format check
-      run: dotnet format ./OColecionadorBackEnd/OColecionadorBackEnd.csproj --verify-no-changes
+      run: dotnet format ./OColecionadorBackEnd/OColecionadorBackEnd.csproj --report ./ocolecionadorbackend-format-report.json --verify-no-changes
 
-    - name: Run unit tests
-      run: dotnet test ./OColecionadorBackEnd --no-build --verbosity normal
+    - name: Upload format report
+      uses: actions/upload-artifact@v4
+      with:
+        name: ocolecionadorbackend-format-report
+        path: ocolecionadorbackend-format-report.json
+
+    - name: Run unit tests with coverage
+      run: dotnet test ./OColecionadorBackEnd --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger "trx;LogFileName=ocolecionadorbackend-test-results.trx"
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: ocolecionadorbackend-test-results
+        path: OColecionadorBackEnd/TestResults/ocolecionadorbackend-test-results.trx
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: ocolecionadorbackend-coverage-report
+        path: OColecionadorBackEnd/TestResults/**/coverage.cobertura.xml
 
     - name: Build project
       run: dotnet build ./OColecionadorBackEnd --no-restore
