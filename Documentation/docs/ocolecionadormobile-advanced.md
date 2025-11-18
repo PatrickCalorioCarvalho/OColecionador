@@ -1,7 +1,7 @@
 ---
 id: ocolecionadormobile-advanced
 title: OColecionadorMobile - Fluxos Avançados
-sidebar_label: Mobile Avançado
+sidebar_label: Avançado
 ---
 
 # OColecionadorMobile - Fluxos Avançados
