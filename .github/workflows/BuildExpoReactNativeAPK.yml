@@ -39,7 +39,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: OColecionadorMobile
-        run: npm ci --legacy-peer-deps
+        run: npm ci
       
       - name: Run unit tests
         working-directory: OColecionadorMobile
