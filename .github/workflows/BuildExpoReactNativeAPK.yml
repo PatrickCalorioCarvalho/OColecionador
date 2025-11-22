@@ -40,6 +40,26 @@ jobs:
       - name: Install dependencies
         working-directory: OColecionadorMobile
         run: npm ci
+      
+      - name: Run unit tests
+        working-directory: OColecionadorMobile
+        run: npm test -- --ci --coverage --passWithNoTests
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: OColecionadorMobile/coverage
+
+      - name: Lint code
+        working-directory: OColecionadorMobile
+        run: npx eslint . --ext .js,.jsx,.ts,.tsx -f json -o lint-report.json
+
+      - name: Upload lint report
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-OColecionadorMobile
+          path: OColecionadorMobile/lint-report.json
 
       - name: Build APK
         working-directory: OColecionadorMobile
