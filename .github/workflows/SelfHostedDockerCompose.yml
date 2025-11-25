@@ -168,10 +168,18 @@ jobs:
         cache: 'npm'
         cache-dependency-path: OColecionadorFrontEnd/package-lock.json
 
+    - name: Clear npm cache
+      run: npm cache clean --force
+
     - name: Install dependencies
       working-directory: OColecionadorFrontEnd
       run: |
-          npm ci || npm install
+        rm -rf node_modules
+        npm ci || npm install
+
+    - name: Fix permissions
+      working-directory: OColecionadorFrontEnd
+      run: chmod +x node_modules/.bin/react-scripts
 
     - name: Lint code (ESLint)
       working-directory: OColecionadorFrontEnd
