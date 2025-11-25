@@ -153,9 +153,56 @@ jobs:
 
     - name: Build project
       run: dotnet build ./OColecionadorBackEnd --no-restore
+  
+  validate-ocolecionadorfrontend:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: OColecionadorFrontEnd/package-lock.json
+
+    - name: Clear npm cache
+      run: npm cache clean --force
+
+    - name: Install dependencies
+      working-directory: OColecionadorFrontEnd
+      run: |
+        npm ci || npm install
+
+    - name: Lint code (ESLint)
+      working-directory: OColecionadorFrontEnd
+      run: |
+        npx eslint . --ext .js,.jsx,.ts,.tsx -f json -o ocolecionadorfrontend-lint-report.json || true
+
+    - name: Upload lint report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: lint-report-OColecionadorFrontEnd
+        path: OColecionadorFrontEnd/ocolecionadorfrontend-lint-report.json
+        retention-days: 30
+
+    - name: Run unit tests with coverage
+      working-directory: OColecionadorFrontEnd
+      run: npm test -- --ci --coverage --passWithNoTests
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: coverage-report-OColecionadorFrontEnd
+        path: OColecionadorFrontEnd/coverage
+        retention-days: 30
 
   docker-compose:
-    needs: [codequality-python,test-python,validate-ocolecionadorbackend]
+    needs: [codequality-python,test-python,validate-ocolecionadorbackend,validate-ocolecionadorfrontend]
     runs-on: self-hosted 
     
     steps:
