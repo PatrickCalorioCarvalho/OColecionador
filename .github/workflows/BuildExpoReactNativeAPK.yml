@@ -48,7 +48,7 @@ jobs:
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report
+          name: coverage-report-OColecionadorMobile
           path: OColecionadorMobile/coverage
 
       - name: Lint code
@@ -58,7 +58,7 @@ jobs:
       - name: Upload lint report
         uses: actions/upload-artifact@v4
         with:
-          name: lint-OColecionadorMobile
+          name: lint-report-OColecionadorMobile
           path: OColecionadorMobile/lint-report.json
 
       - name: Build APK
