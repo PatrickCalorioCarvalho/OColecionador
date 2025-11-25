@@ -30,7 +30,7 @@
     "eject": "react-scripts eject"
   },
   "jest": {
-    "preset": "react-native",
+    "testEnvironment": "jsdom",
     "testMatch": [
       "**/__tests__/**/*.test.[jt]s?(x)",
       "**/?(*.)+(spec|test).[jt]s?(x)"
