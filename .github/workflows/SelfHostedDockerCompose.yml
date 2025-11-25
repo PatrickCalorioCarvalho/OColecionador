@@ -174,12 +174,7 @@ jobs:
     - name: Install dependencies
       working-directory: OColecionadorFrontEnd
       run: |
-        rm -rf node_modules
         npm ci || npm install
-
-    - name: Fix permissions
-      working-directory: OColecionadorFrontEnd
-      run: chmod +x node_modules/.bin/react-scripts
 
     - name: Lint code (ESLint)
       working-directory: OColecionadorFrontEnd
