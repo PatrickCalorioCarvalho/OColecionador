@@ -4,9 +4,12 @@
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.126",
+    "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "ajv": "^8.17.1",
     "ajv-keywords": "^5.1.0",
@@ -23,15 +26,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "jest",
+    "test": "react-scripts test",
     "eject": "react-scripts eject"
-  },
-  "jest": {
-    "testEnvironment": "jsdom",
-    "testMatch": [
-      "**/__tests__/**/*.test.[jt]s?(x)",
-      "**/?(*.)+(spec|test).[jt]s?(x)"
-    ]
   },
   "eslintConfig": {
     "extends": [
@@ -52,12 +48,6 @@
     ]
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.0",
-    "@types/react": "^19.2.7",
-    "@types/react-router-dom": "^5.3.3",
-    "eslint": "^9.39.1",
-    "eslint-config-react-app": "^7.0.1",
-    "jest": "^30.2.0"
+    "@types/react-router-dom": "^5.3.3"
   }
 }
