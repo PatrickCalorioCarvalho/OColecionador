@@ -27,7 +27,6 @@ services:
       "
     volumes:
       - ./OColecionadorBackEnd/init.sql:/init.sql
-    restart: unless-stopped
 
   postgres:
     image: postgres:15
